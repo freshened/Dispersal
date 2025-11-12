@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     "Maximize your reach with targeted search ads, eye-catching display campaigns, and engaging social media advertising. Drive conversions and grow your business with data-driven ad strategies.",
   keywords:
     "digital advertising, search ads, display advertising, social media ads, Google Ads, Facebook Ads, paid advertising, Cincinnati digital marketing",
+  alternates: {
+    canonical: "https://dispersal.net/services/digital-advertising",
+  },
   openGraph: {
     title: "Search, Display & Social Media Advertising | Dispersal Digital Agency",
     description:

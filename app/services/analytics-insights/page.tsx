@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     "Track your success with detailed analytics and actionable insights for growth. We help you understand your data and make informed decisions that drive results.",
   keywords:
     "web analytics, business analytics, data insights, Google Analytics, conversion tracking, business intelligence, Cincinnati analytics",
+  alternates: {
+    canonical: "https://dispersal.net/services/analytics-insights",
+  },
   openGraph: {
     title: "Analytics & Insights | Dispersal Digital Agency",
     description:

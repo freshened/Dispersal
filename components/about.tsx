@@ -63,11 +63,11 @@ export function About() {
           <div className="inline-flex items-center gap-2 glass-dark rounded-full px-4 py-2 mb-6">
             <span className="text-white/90 text-sm font-medium">About Me</span>
           </div>
-          <h2 className="text-5xl md:text-6xl font-bold text-white mb-6 text-balance">
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 text-balance">
             Meet the Developer
             <br />
             <span className="text-white/60">Behind Dispersal</span>
-          </h2>
+          </h1>
         </div>
 
         <div className="max-w-4xl mx-auto mb-20">

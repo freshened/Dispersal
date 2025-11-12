@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   description:
     "Premier digital marketing agency. We create stunning websites, provide reliable hosting, and deliver results-driven SEO for businesses.",
   generator: "v0.app",
+  alternates: {
+    canonical: "https://dispersal.net",
+  },
   icons: {
     icon: [
       {

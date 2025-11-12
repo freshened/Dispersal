@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     "Complete full-stack web development services. From simple sites to complex web applications, we build exactly what you need with modern technologies and best practices.",
   keywords:
     "full-stack development, web development, web applications, custom software, API development, database design, Cincinnati web developers",
+  alternates: {
+    canonical: "https://dispersal.net/services/full-stack-development",
+  },
   openGraph: {
     title: "Full-Stack Web Development | Dispersal Digital Agency",
     description:

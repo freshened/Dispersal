@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     "Senior Software Developer at DHL Express with deep expertise in enterprise automation, AI, and applied data systems. Learn about my professional work and independent projects.",
   keywords:
     "Andrew Tufarella, software developer, DHL Express, AI development, enterprise automation, full-stack developer, Cincinnati developer",
+  alternates: {
+    canonical: "https://dispersal.net/about",
+  },
   openGraph: {
     title: "About Andrew Tufarella | Dispersal Digital Agency",
     description:

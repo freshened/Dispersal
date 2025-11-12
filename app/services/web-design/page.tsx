@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   description:
     "Professional web design and premium hosting services. We create stunning, custom websites with 99.9% uptime hosting that captivate your audience and convert visitors into customers.",
   keywords: "web design, website design, custom websites, premium hosting, web development, Cincinnati web design",
+  alternates: {
+    canonical: "https://dispersal.net/services/web-design",
+  },
   openGraph: {
     title: "Web Design & Hosting Services | Dispersal Digital Agency",
     description:

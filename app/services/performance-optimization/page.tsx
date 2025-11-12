@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     "Blazing-fast load times and smooth interactions that keep visitors engaged. We optimize your website's performance for speed, user experience, and search rankings.",
   keywords:
     "website performance, page speed optimization, site speed, performance optimization, Core Web Vitals, website optimization, Cincinnati web optimization",
+  alternates: {
+    canonical: "https://dispersal.net/services/performance-optimization",
+  },
   openGraph: {
     title: "Website Performance Optimization | Dispersal Digital Agency",
     description:

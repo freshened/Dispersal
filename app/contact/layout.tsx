@@ -6,6 +6,9 @@ export const metadata: Metadata = {
     "Get in touch with Dispersal Digital Agency. Fill out our contact form or reach us directly at (513) 834-0809 or drew@dispersal.net to start your project.",
   keywords:
     "contact, get in touch, web design contact, digital marketing contact, Cincinnati web agency, contact form",
+  alternates: {
+    canonical: "https://dispersal.net/contact",
+  },
   openGraph: {
     title: "Contact Us | Dispersal Digital Agency",
     description:
