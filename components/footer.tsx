@@ -72,10 +72,10 @@ export function Footer() {
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-white/40 text-sm">© 2025 Dispersal Digital Agency. All rights reserved.</p>
           <div className="flex gap-6">
-            <a href="#" className="text-white/40 hover:text-white text-sm transition-colors">
+            <a href="/privacy-policy" className="text-white/40 hover:text-white text-sm transition-colors">
               Privacy Policy
             </a>
-            <a href="#" className="text-white/40 hover:text-white text-sm transition-colors">
+            <a href="/terms-of-service" className="text-white/40 hover:text-white text-sm transition-colors">
               Terms of Service
             </a>
           </div>
