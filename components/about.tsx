@@ -80,6 +80,7 @@ export function About() {
                   width={192}
                   height={192}
                   className="h-full w-full object-cover"
+                  sizes="(max-width: 768px) 192px, 192px"
                 />
               </div>
             </div>

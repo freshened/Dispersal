@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
+import Link from "next/link"
 
 export function CTA() {
   return (
@@ -22,16 +23,22 @@ export function CTA() {
           <Button
             size="lg"
             className="rounded-full bg-white text-black hover:bg-white/90 px-8 h-14 text-base font-semibold"
+            asChild
           >
-            Schedule a Consultation
-            <ArrowRight className="ml-2 h-5 w-5" />
+            <Link href="/contact">
+              Schedule a Consultation
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
           </Button>
           <Button
             size="lg"
             variant="outline"
             className="rounded-full border-white/20 text-white hover:bg-white/10 px-8 h-14 text-base font-semibold glass-dark bg-transparent"
+            asChild
           >
-            Call (513) 834-0809
+            <a href="tel:5138340809">
+              Call (513) 834-0809
+            </a>
           </Button>
         </div>
 

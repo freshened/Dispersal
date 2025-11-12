@@ -13,6 +13,8 @@ export function Footer() {
                 width={200}
                 height={80}
                 className="h-12 w-auto"
+                sizes="(max-width: 768px) 200px, 200px"
+                priority
               />
             </div>
             <p className="text-white/60 text-sm leading-relaxed max-w-md">

@@ -33,6 +33,7 @@ export default function WebDesignPage() {
               width={32}
               height={32}
               className="h-8 w-auto"
+              sizes="32px"
             />
             <span className="text-white font-semibold text-lg">Dispersal Digital Agency</span>
           </Link>
