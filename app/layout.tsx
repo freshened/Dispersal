@@ -4,7 +4,12 @@ import { Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
-const inter = Inter({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] })
+const inter = Inter({ 
+  subsets: ["latin"], 
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+  preload: true,
+})
 
 export const metadata: Metadata = {
   title: "Dispersal Digital Agency | Website Design, Hosting & SEO",
