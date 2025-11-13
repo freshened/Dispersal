@@ -1,13 +1,29 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Navigation } from "@/components/navigation"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
-import { FileText, DollarSign, Calendar, Settings, LogOut } from "lucide-react"
+import { FileText, DollarSign, Calendar, Settings, LogOut, User } from "lucide-react"
 
 export default function DashboardPage() {
+  const [user, setUser] = useState<{ email: string; name: string | null } | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.user) {
+          setUser(data.user)
+        }
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
   return (
     <main className="relative min-h-screen bg-background">
       <div className="relative min-h-[300px] w-full overflow-hidden flex items-center justify-center pt-32 pb-16">
@@ -16,7 +32,20 @@ export default function DashboardPage() {
         <Navigation />
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">Client Dashboard</h1>
-          <p className="text-lg text-white/80">Manage your projects and account</p>
+          {loading ? (
+            <p className="text-lg text-white/80">Loading...</p>
+          ) : user ? (
+            <div className="flex items-center justify-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center">
+                <User className="h-5 w-5 text-white" />
+              </div>
+              <p className="text-lg text-white/80">
+                Welcome, <span className="font-semibold text-white">{user.name || user.email}</span>
+              </p>
+            </div>
+          ) : (
+            <p className="text-lg text-white/80">Manage your projects and account</p>
+          )}
         </div>
       </div>
 
@@ -71,8 +100,12 @@ export default function DashboardPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
                 <div>
-                  <p className="text-white font-medium">Welcome to your dashboard</p>
-                  <p className="text-white/60 text-sm">Your account is set up and ready to use</p>
+                  <p className="text-white font-medium">
+                    {user ? `Welcome back, ${user.name || user.email}` : "Welcome to your dashboard"}
+                  </p>
+                  <p className="text-white/60 text-sm">
+                    {user ? `Signed in as ${user.email}` : "Your account is set up and ready to use"}
+                  </p>
                 </div>
                 <span className="text-white/40 text-sm">Just now</span>
               </div>
@@ -80,12 +113,16 @@ export default function DashboardPage() {
           </div>
 
           <div className="mt-8 flex justify-center">
-            <Button variant="outline" className="border-white/20 text-white hover:bg-white/10" asChild>
-              <Link href="/client-portal">
+            <form action="/api/auth/logout" method="POST">
+              <Button
+                type="submit"
+                variant="outline"
+                className="border-white/20 text-white hover:bg-white/10"
+              >
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
-              </Link>
-            </Button>
+              </Button>
+            </form>
           </div>
         </div>
       </section>
