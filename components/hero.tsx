@@ -1,8 +1,8 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { Navigation } from "@/components/navigation"
 import { ArrowRight } from "lucide-react"
-import Image from "next/image"
 
 export function Hero() {
   return (
@@ -20,37 +20,7 @@ export function Hero() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_20%,_rgba(0,0,0,0.4)_70%)]" />
       </div>
 
-      {/* Floating Navigation */}
-      <nav className="absolute top-8 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-6xl">
-        <div className="glass-dark rounded-full px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Image
-              src="/Logo-Only-Dispersal.png"
-              alt="Dispersal Digital Agency"
-              width={32}
-              height={32}
-              className="h-8 w-auto"
-              sizes="32px"
-              priority
-            />
-            <span className="text-white font-semibold text-lg">Dispersal Digital Agency</span>
-          </div>
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#services" className="text-white/80 hover:text-white transition-colors text-sm font-medium">
-              Services
-            </a>
-            <a href="/about" className="text-white/80 hover:text-white transition-colors text-sm font-medium">
-              About
-            </a>
-            <a href="#process" className="text-white/80 hover:text-white transition-colors text-sm font-medium">
-              Process
-            </a>
-            <Button size="sm" className="rounded-full bg-white text-black hover:bg-white/90" asChild>
-              <a href="/contact">Get Started</a>
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Hero Content */}
       <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
