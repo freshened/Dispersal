@@ -6,7 +6,7 @@ import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
-import { FileText, DollarSign, Calendar, Settings, LogOut, User } from "lucide-react"
+import { FileText, DollarSign, Calendar, Settings, LogOut, User, BarChart3 } from "lucide-react"
 
 export default function DashboardPage() {
   const [user, setUser] = useState<{ email: string; name: string | null } | null>(null)
@@ -87,6 +87,34 @@ export default function DashboardPage() {
                 </div>
               </div>
             </Card>
+
+            <Link href="/client-portal/analytics/reddit">
+              <Card className="glass-dark rounded-2xl p-6 border-white/10 hover:border-white/20 transition-colors cursor-pointer">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center">
+                    <BarChart3 className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold mb-1">Reddit Ads</h3>
+                    <p className="text-white/60 text-sm">View Reddit advertising analytics</p>
+                  </div>
+                </div>
+              </Card>
+            </Link>
+
+            <Link href="/client-portal/integrations/reddit">
+              <Card className="glass-dark rounded-2xl p-6 border-white/10 hover:border-white/20 transition-colors cursor-pointer border-dashed">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center">
+                    <BarChart3 className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold mb-1">Add Integration</h3>
+                    <p className="text-white/60 text-sm">Connect Reddit Ads account</p>
+                  </div>
+                </div>
+              </Card>
+            </Link>
           </div>
 
           <div className="glass-dark rounded-3xl p-8">
