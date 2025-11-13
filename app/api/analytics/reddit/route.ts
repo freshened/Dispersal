@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getCurrentUser } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { refreshRedditAccessToken, fetchRedditAdsData } from "@/lib/reddit-api"
+import { refreshRedditAccessToken, fetchRedditAdsData, getRedditAccounts } from "@/lib/reddit-api"
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,12 +30,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    if (!integration.accountId) {
-      return NextResponse.json(
-        { error: "Reddit account ID not configured" },
-        { status: 400 }
-      )
-    }
+    let accountId: string | null = integration.accountId
 
     if (!integration.refreshToken) {
       return NextResponse.json(
@@ -82,7 +77,68 @@ export async function GET(request: NextRequest) {
         throw new Error("Failed to obtain access token")
       }
 
-      const data = await fetchRedditAdsData(accessToken, integration.accountId)
+      if (!accountId) {
+        console.log("No account ID configured, fetching accounts from Reddit...")
+        const accounts = await getRedditAccounts(accessToken)
+        if (accounts.length === 0) {
+          throw new Error("No Reddit ad accounts found. Please create an ad account first.")
+        }
+        accountId = accounts[0].id || accounts[0].account_id || null
+        if (!accountId) {
+          throw new Error("Could not determine account ID from Reddit response")
+        }
+        console.log("Using account ID from Reddit:", accountId)
+        
+        await db.apiIntegration.update({
+          where: {
+            userId_provider: {
+              userId: user.id,
+              provider: "reddit",
+            },
+          },
+          data: {
+            accountId: accountId,
+          },
+        })
+      }
+
+      if (!accountId) {
+        throw new Error("Account ID is required but not available")
+      }
+
+      let data
+      try {
+        data = await fetchRedditAdsData(accessToken, accountId)
+      } catch (fetchError) {
+        if (fetchError instanceof Error && fetchError.message.includes("404")) {
+          console.log("Account ID failed with 404, fetching correct account ID from Reddit...")
+          const accounts = await getRedditAccounts(accessToken)
+          if (accounts.length === 0) {
+            throw new Error("No Reddit ad accounts found. Please create an ad account first.")
+          }
+          const correctAccountId = accounts[0].id || accounts[0].account_id || accounts[0].uuid
+          if (!correctAccountId) {
+            throw new Error("Could not determine account ID from Reddit response")
+          }
+          console.log("Found correct account ID:", correctAccountId)
+          
+          await db.apiIntegration.update({
+            where: {
+              userId_provider: {
+                userId: user.id,
+                provider: "reddit",
+              },
+            },
+            data: {
+              accountId: correctAccountId,
+            },
+          })
+          
+          data = await fetchRedditAdsData(accessToken, correctAccountId)
+        } else {
+          throw fetchError
+        }
+      }
 
       return NextResponse.json({ data }, { status: 200 })
     } catch (authError) {

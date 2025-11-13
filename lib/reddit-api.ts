@@ -115,6 +115,32 @@ export async function getRedditAccessToken(clientId: string, clientSecret: strin
   }
 }
 
+export async function getRedditAccounts(accessToken: string): Promise<any[]> {
+  try {
+    const response = await fetch("https://ads-api.reddit.com/api/v2.0/accounts", {
+      headers: {
+        "Authorization": `Bearer ${accessToken}`,
+        "User-Agent": "DispersalAnalytics/1.0 by DispersalDigital",
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error("Reddit Accounts API Error:", errorText)
+      throw new Error(`Failed to fetch Reddit accounts: ${response.status}`)
+    }
+
+    const data = await response.json()
+    console.log("Reddit Accounts Response:", JSON.stringify(data, null, 2))
+    
+    return data.data || data.accounts || []
+  } catch (error) {
+    console.error("Error fetching Reddit accounts:", error)
+    throw error
+  }
+}
+
 export async function fetchRedditAdsData(accessToken: string, accountId: string): Promise<RedditAdsData> {
   if (!accountId) {
     throw new Error("Reddit account ID not provided")
