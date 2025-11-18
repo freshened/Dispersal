@@ -58,3 +58,43 @@ export async function checkVerificationRateLimit(
   }
 }
 
+export async function checkContactRateLimit(
+  email: string,
+  ipAddress: string | null,
+  maxAttempts: number,
+  windowMinutes: number
+): Promise<{ allowed: boolean; remaining: number; resetAt: Date }> {
+  const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000)
+
+  const emailAttempts = await db.contactSubmission.count({
+    where: {
+      email: email.toLowerCase().trim(),
+      createdAt: {
+        gte: windowStart,
+      },
+    },
+  })
+
+  let ipAttempts = 0
+  if (ipAddress) {
+    ipAttempts = await db.contactSubmission.count({
+      where: {
+        ipAddress,
+        createdAt: {
+          gte: windowStart,
+        },
+      },
+    })
+  }
+
+  const attempts = Math.max(emailAttempts, ipAttempts)
+  const remaining = Math.max(0, maxAttempts - attempts)
+  const resetAt = new Date(Date.now() + windowMinutes * 60 * 1000)
+
+  return {
+    allowed: attempts < maxAttempts,
+    remaining,
+    resetAt,
+  }
+}
+

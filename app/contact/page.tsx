@@ -17,9 +17,11 @@ export default function ContactPage() {
     phone: "",
     company: "",
     message: "",
+    website: "",
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [formLoadTime] = useState(Date.now())
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,7 +33,10 @@ export default function ContactPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          formLoadTime,
+        }),
       })
 
       if (!response.ok) {
@@ -39,7 +44,7 @@ export default function ContactPage() {
       }
 
       setIsSubmitted(true)
-      setFormData({ name: "", email: "", phone: "", company: "", message: "" })
+      setFormData({ name: "", email: "", phone: "", company: "", message: "", website: "" })
 
       setTimeout(() => {
         setIsSubmitted(false)
@@ -205,6 +210,22 @@ export default function ContactPage() {
                         rows={6}
                         className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
                         placeholder="Tell us about your project..."
+                      />
+                    </div>
+
+                    <div style={{ position: "absolute", left: "-9999px", opacity: 0, pointerEvents: "none" }}>
+                      <Label htmlFor="website" className="text-white mb-2 block">
+                        Website
+                      </Label>
+                      <Input
+                        id="website"
+                        name="website"
+                        type="text"
+                        value={formData.website}
+                        onChange={handleChange}
+                        tabIndex={-1}
+                        autoComplete="off"
+                        className="bg-white/5 border-white/20 text-white placeholder:text-white/40"
                       />
                     </div>
 

@@ -63,3 +63,14 @@ model ApiIntegration {
   @@index([provider])
 }
 
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  email     String
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([ipAddress])
+  @@index([createdAt])
+}
+
