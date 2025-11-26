@@ -6,13 +6,13 @@ import { ArrowRight } from "lucide-react"
 
 export function Hero() {
   return (
-    <section className="relative h-screen w-full overflow-hidden flex items-center justify-center">
+    <section className="relative min-h-screen w-full overflow-hidden flex items-start justify-center pt-24 md:pt-32 pb-24">
       {/* Video Background */}
       <div className="absolute inset-0 z-0">
-        <video autoPlay loop muted playsInline className="h-full w-full object-cover">
+        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
           <source src="/GreatAmerican.mp4" type="video/mp4" />
           {/* Fallback placeholder */}
-          <div className="h-full w-full bg-gradient-to-br from-black via-zinc-900 to-black" />
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-black via-zinc-900 to-black" />
         </video>
         {/* Darker overlay for better text contrast */}
         <div className="absolute inset-0 bg-black/40" />
@@ -23,8 +23,8 @@ export function Hero() {
       <Navigation />
 
       {/* Hero Content */}
-      <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-        <div className="inline-flex items-center gap-2 glass-dark rounded-full px-4 py-2 mb-8">
+      <div className="relative z-10 text-center px-4 max-w-5xl mx-auto pt-20 md:pt-28">
+        <div className="inline-flex items-center gap-2 glass-dark rounded-full px-4 py-2 mb-10 md:mb-14">
           <span className="text-white/90 text-sm font-medium">Cincinnati's Most Creative Digital Agency</span>
         </div>
 
@@ -38,7 +38,7 @@ export function Hero() {
           Premium website design paired with comprehensive digital marketing. We deliver SEO, display advertising, and social media campaigns that drive results, so you can focus on growing your business.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-center mb-16">
           <Button
             size="lg"
             className="rounded-full bg-white text-black hover:bg-white/90 px-8 h-14 text-base font-semibold"
@@ -58,7 +58,7 @@ export function Hero() {
       </div>
 
       {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10">
         <div className="glass-dark rounded-full p-3 animate-bounce">
           <svg
             className="w-6 h-6 text-white"

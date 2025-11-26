@@ -74,3 +74,22 @@ model ContactSubmission {
   @@index([createdAt])
 }
 
+model RoofAssessmentLead {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String
+  address   String
+  city      String?
+  state     String?
+  zipCode   String?
+  message   String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([phone])
+  @@index([ipAddress])
+  @@index([createdAt])
+}
+

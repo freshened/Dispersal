@@ -59,32 +59,67 @@ export async function checkVerificationRateLimit(
 }
 
 export async function checkContactRateLimit(
-  email: string,
+  email: string | null,
   ipAddress: string | null,
   maxAttempts: number,
   windowMinutes: number
 ): Promise<{ allowed: boolean; remaining: number; resetAt: Date }> {
+  if (!process.env.DATABASE_URL) {
+    return {
+      allowed: true,
+      remaining: maxAttempts,
+      resetAt: new Date(Date.now() + windowMinutes * 60 * 1000),
+    }
+  }
+
   const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000)
 
-  const emailAttempts = await db.contactSubmission.count({
-    where: {
-      email: email.toLowerCase().trim(),
-      createdAt: {
-        gte: windowStart,
-      },
-    },
-  })
+  let emailAttempts = 0
+  if (email) {
+    try {
+      emailAttempts = await Promise.race([
+        db.contactSubmission.count({
+          where: {
+            email: email.toLowerCase().trim(),
+            createdAt: {
+              gte: windowStart,
+            },
+          },
+        }),
+        new Promise<number>((resolve) => setTimeout(() => resolve(0), 1000)),
+      ])
+    } catch (error) {
+      console.warn("Rate limit check failed (database not available), allowing request")
+      return {
+        allowed: true,
+        remaining: maxAttempts,
+        resetAt: new Date(Date.now() + windowMinutes * 60 * 1000),
+      }
+    }
+  }
 
   let ipAttempts = 0
   if (ipAddress) {
-    ipAttempts = await db.contactSubmission.count({
-      where: {
-        ipAddress,
-        createdAt: {
-          gte: windowStart,
-        },
-      },
-    })
+    try {
+      ipAttempts = await Promise.race([
+        db.contactSubmission.count({
+          where: {
+            ipAddress,
+            createdAt: {
+              gte: windowStart,
+            },
+          },
+        }),
+        new Promise<number>((resolve) => setTimeout(() => resolve(0), 1000)),
+      ])
+    } catch (error) {
+      console.warn("Rate limit check failed (database not available), allowing request")
+      return {
+        allowed: true,
+        remaining: maxAttempts,
+        resetAt: new Date(Date.now() + windowMinutes * 60 * 1000),
+      }
+    }
   }
 
   const attempts = Math.max(emailAttempts, ipAttempts)
