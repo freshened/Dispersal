@@ -16,12 +16,13 @@ function containsSpamKeywords(text: string): boolean {
   const spamKeywords = [
     "viagra", "cialis", "casino", "poker", "lottery", "winner", "prize",
     "free money", "make money fast", "work from home", "get rich",
-    "click here", "buy now", "limited time", "act now", "urgent",
+    "click here", "buy now", "limited time", "act now",
     "guaranteed", "no risk", "100% free", "no credit check",
     "debt consolidation", "refinance", "lower interest",
     "weight loss", "lose weight fast", "diet pills",
     "rolex", "replica", "cheap watches", "luxury watches"
   ]
+  // Note: "urgent" removed from spam keywords as it's a legitimate field in roof assessment forms
   const lowerText = text.toLowerCase()
   return spamKeywords.some(keyword => lowerText.includes(keyword))
 }
@@ -67,7 +68,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const fullText = `${name} ${email} ${phone} ${address} ${city || ""} ${state || ""} ${message || ""}`.toLowerCase()
+    // Check spam keywords, but exclude the message field which may contain legitimate urgency/roof-related terms
+    const fullText = `${name} ${email} ${phone} ${address} ${city || ""} ${state || ""}`.toLowerCase()
 
     if (containsSpamKeywords(fullText)) {
       return NextResponse.json(
