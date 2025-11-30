@@ -126,19 +126,31 @@ export async function POST(request: NextRequest) {
 
     const transporter = getTransporter()
 
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
-      to: email,
-      subject: "Your Client Portal Login Code",
-      html: `
-        <h2>Your Login Code</h2>
-        <p>Your login code for the Dispersal Digital Agency Client Portal is:</p>
-        <h1 style="font-size: 36px; letter-spacing: 8px; text-align: center; margin: 30px 0; color: #000; background: #f0f0f0; padding: 20px; border-radius: 8px; display: inline-block; width: 100%;">${code}</h1>
-        <p>This code will expire in 10 minutes.</p>
-        <p>If you didn't request this code, please ignore this email.</p>
-      `,
-      text: `Your login code for the Dispersal Digital Agency Client Portal is: ${code}\n\nThis code will expire in 10 minutes.\n\nIf you didn't request this code, please ignore this email.`,
-    })
+    try {
+      const mailResult = await transporter.sendMail({
+        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+        to: email,
+        subject: "Your Client Portal Login Code",
+        html: `
+          <h2>Your Login Code</h2>
+          <p>Your login code for the Dispersal Digital Agency Client Portal is:</p>
+          <h1 style="font-size: 36px; letter-spacing: 8px; text-align: center; margin: 30px 0; color: #000; background: #f0f0f0; padding: 20px; border-radius: 8px; display: inline-block; width: 100%;">${code}</h1>
+          <p>This code will expire in 10 minutes.</p>
+          <p>If you didn't request this code, please ignore this email.</p>
+        `,
+        text: `Your login code for the Dispersal Digital Agency Client Portal is: ${code}\n\nThis code will expire in 10 minutes.\n\nIf you didn't request this code, please ignore this email.`,
+      })
+      console.log("Email sent successfully:", mailResult.messageId)
+    } catch (emailError) {
+      console.error("Failed to send email:", emailError)
+      const emailErrorDetails = emailError instanceof Error ? {
+        message: emailError.message,
+        stack: emailError.stack,
+        name: emailError.name
+      } : { error: String(emailError) }
+      console.error("Email error details:", JSON.stringify(emailErrorDetails, null, 2))
+      throw new Error(`Failed to send email: ${emailError instanceof Error ? emailError.message : 'Unknown error'}`)
+    }
 
     return NextResponse.json(
       { message: "Code sent successfully" },
