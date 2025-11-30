@@ -133,3 +133,55 @@ export async function checkContactRateLimit(
   }
 }
 
+export async function checkIPRateLimit(
+  ipAddress: string,
+  maxAttempts: number,
+  windowMinutes: number
+): Promise<{ allowed: boolean; remaining: number; resetAt: Date }> {
+  const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000)
+
+  const attempts = await db.loginCode.count({
+    where: {
+      ipAddress,
+      createdAt: {
+        gte: windowStart,
+      },
+    },
+  })
+
+  const remaining = Math.max(0, maxAttempts - attempts)
+  const resetAt = new Date(Date.now() + windowMinutes * 60 * 1000)
+
+  return {
+    allowed: attempts < maxAttempts,
+    remaining,
+    resetAt,
+  }
+}
+
+export async function checkIPVerificationRateLimit(
+  ipAddress: string,
+  maxAttempts: number,
+  windowMinutes: number
+): Promise<{ allowed: boolean; remaining: number; resetAt: Date }> {
+  const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000)
+
+  const attempts = await db.loginCode.count({
+    where: {
+      ipAddress,
+      createdAt: {
+        gte: windowStart,
+      },
+    },
+  })
+
+  const remaining = Math.max(0, maxAttempts - attempts)
+  const resetAt = new Date(Date.now() + windowMinutes * 60 * 1000)
+
+  return {
+    allowed: attempts < maxAttempts,
+    remaining,
+    resetAt,
+  }
+}
+

@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { randomBytes } from "crypto"
-import { checkVerificationRateLimit } from "@/lib/rate-limit"
+import { checkVerificationRateLimit, checkIPVerificationRateLimit } from "@/lib/rate-limit"
+
+function getClientIP(request: NextRequest): string | null {
+  const forwarded = request.headers.get("x-forwarded-for")
+  const realIP = request.headers.get("x-real-ip")
+  if (forwarded) {
+    return forwarded.split(",")[0].trim()
+  }
+  return realIP || null
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,6 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedEmail = email.toLowerCase().trim()
+    const ipAddress = getClientIP(request)
 
     const rateLimit = await checkVerificationRateLimit(normalizedEmail, 10, 15)
 
@@ -24,6 +34,17 @@ export async function POST(request: NextRequest) {
         { error: `Too many verification attempts. Please wait ${Math.ceil((rateLimit.resetAt.getTime() - Date.now()) / 60000)} minutes before trying again.` },
         { status: 429 }
       )
+    }
+
+    if (ipAddress) {
+      const ipRateLimit = await checkIPVerificationRateLimit(ipAddress, 30, 15)
+
+      if (!ipRateLimit.allowed) {
+        return NextResponse.json(
+          { error: `Too many verification attempts from this IP. Please wait ${Math.ceil((ipRateLimit.resetAt.getTime() - Date.now()) / 60000)} minutes before trying again.` },
+          { status: 429 }
+        )
+      }
     }
 
     const loginCode = await db.loginCode.findFirst({

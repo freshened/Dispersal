@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
 import nodemailer from "nodemailer"
+import { randomInt } from "crypto"
 import { db } from "@/lib/db"
-import { checkRateLimit } from "@/lib/rate-limit"
+import { checkRateLimit, checkIPRateLimit } from "@/lib/rate-limit"
 
 function generateCode(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString()
+  return randomInt(100000, 1000000).toString()
+}
+
+function getClientIP(request: NextRequest): string | null {
+  const forwarded = request.headers.get("x-forwarded-for")
+  const realIP = request.headers.get("x-real-ip")
+  if (forwarded) {
+    return forwarded.split(",")[0].trim()
+  }
+  return realIP || null
 }
 
 function getTransporter() {
@@ -42,6 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedEmail = email.toLowerCase().trim()
+    const ipAddress = getClientIP(request)
 
     const rateLimit = await checkRateLimit(normalizedEmail, 5, 15)
 
@@ -50,6 +61,17 @@ export async function POST(request: NextRequest) {
         { error: `Too many code requests. Please wait ${Math.ceil((rateLimit.resetAt.getTime() - Date.now()) / 60000)} minutes before requesting another code.` },
         { status: 429 }
       )
+    }
+
+    if (ipAddress) {
+      const ipRateLimit = await checkIPRateLimit(ipAddress, 20, 60)
+
+      if (!ipRateLimit.allowed) {
+        return NextResponse.json(
+          { error: `Too many code requests from this IP. Please wait ${Math.ceil((ipRateLimit.resetAt.getTime() - Date.now()) / 60000)} minutes before requesting another code.` },
+          { status: 429 }
+        )
+      }
     }
 
     const user = await db.user.findUnique({
@@ -69,9 +91,6 @@ export async function POST(request: NextRequest) {
     await db.loginCode.deleteMany({
       where: {
         email: normalizedEmail,
-        expiresAt: {
-          lt: new Date(),
-        },
       },
     })
 
@@ -80,6 +99,7 @@ export async function POST(request: NextRequest) {
         email: normalizedEmail,
         code,
         expiresAt,
+        ipAddress,
       },
     })
 

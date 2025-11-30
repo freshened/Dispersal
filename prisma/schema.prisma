@@ -37,10 +37,13 @@ model LoginCode {
   code      String
   expiresAt DateTime
   used      Boolean  @default(false)
+  ipAddress String?
   createdAt DateTime @default(now())
 
   @@index([email])
   @@index([code])
+  @@index([ipAddress])
+  @@index([createdAt])
 }
 
 model ApiIntegration {
