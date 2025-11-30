@@ -11,11 +11,15 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
+  role      String   @default("client")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   sessions        Session[]
   apiIntegrations ApiIntegration[]
+
+  @@index([role])
+  @@index([email])
 }
 
 model Session {
@@ -94,5 +98,26 @@ model RoofAssessmentLead {
   @@index([phone])
   @@index([ipAddress])
   @@index([createdAt])
+}
+
+model PageView {
+  id          String   @id @default(cuid())
+  path        String
+  referrer    String?
+  userAgent   String?
+  ipAddress   String?
+  country     String?
+  city        String?
+  deviceType  String?
+  browser     String?
+  os          String?
+  sessionId   String?
+  duration    Int?
+  createdAt   DateTime @default(now())
+
+  @@index([path])
+  @@index([createdAt])
+  @@index([sessionId])
+  @@index([ipAddress])
 }
 
