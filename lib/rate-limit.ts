@@ -5,24 +5,44 @@ export async function checkRateLimit(
   maxAttempts: number,
   windowMinutes: number
 ): Promise<{ allowed: boolean; remaining: number; resetAt: Date }> {
+  if (!process.env.DATABASE_URL) {
+    return {
+      allowed: true,
+      remaining: maxAttempts,
+      resetAt: new Date(Date.now() + windowMinutes * 60 * 1000),
+    }
+  }
+
   const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000)
 
-  const attempts = await db.loginCode.count({
-    where: {
-      email: identifier,
-      createdAt: {
-        gte: windowStart,
-      },
-    },
-  })
+  try {
+    const attempts = await Promise.race([
+      db.loginCode.count({
+        where: {
+          email: identifier,
+          createdAt: {
+            gte: windowStart,
+          },
+        },
+      }),
+      new Promise<number>((resolve) => setTimeout(() => resolve(0), 1000)),
+    ])
 
-  const remaining = Math.max(0, maxAttempts - attempts)
-  const resetAt = new Date(Date.now() + windowMinutes * 60 * 1000)
+    const remaining = Math.max(0, maxAttempts - attempts)
+    const resetAt = new Date(Date.now() + windowMinutes * 60 * 1000)
 
-  return {
-    allowed: attempts < maxAttempts,
-    remaining,
-    resetAt,
+    return {
+      allowed: attempts < maxAttempts,
+      remaining,
+      resetAt,
+    }
+  } catch (error) {
+    console.warn("Rate limit check failed (database not available), allowing request")
+    return {
+      allowed: true,
+      remaining: maxAttempts,
+      resetAt: new Date(Date.now() + windowMinutes * 60 * 1000),
+    }
   }
 }
 
@@ -31,30 +51,50 @@ export async function checkVerificationRateLimit(
   maxAttempts: number,
   windowMinutes: number
 ): Promise<{ allowed: boolean; remaining: number; resetAt: Date }> {
+  if (!process.env.DATABASE_URL) {
+    return {
+      allowed: true,
+      remaining: maxAttempts,
+      resetAt: new Date(Date.now() + windowMinutes * 60 * 1000),
+    }
+  }
+
   const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000)
 
-  const recentCodes = await db.loginCode.findMany({
-    where: {
-      email: identifier,
-      createdAt: {
-        gte: windowStart,
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  })
+  try {
+    const recentCodes = await Promise.race([
+      db.loginCode.findMany({
+        where: {
+          email: identifier,
+          createdAt: {
+            gte: windowStart,
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
+      new Promise<Array<{ used: boolean; expiresAt: Date }>>((resolve) => setTimeout(() => resolve([]), 1000)),
+    ])
 
-  const failedAttempts = recentCodes.filter((code) => code.used === false && code.expiresAt < new Date()).length
-  const attempts = recentCodes.length
+    const failedAttempts = recentCodes.filter((code) => code.used === false && code.expiresAt < new Date()).length
+    const attempts = recentCodes.length
 
-  const remaining = Math.max(0, maxAttempts - attempts)
-  const resetAt = new Date(Date.now() + windowMinutes * 60 * 1000)
+    const remaining = Math.max(0, maxAttempts - attempts)
+    const resetAt = new Date(Date.now() + windowMinutes * 60 * 1000)
 
-  return {
-    allowed: attempts < maxAttempts,
-    remaining,
-    resetAt,
+    return {
+      allowed: attempts < maxAttempts,
+      remaining,
+      resetAt,
+    }
+  } catch (error) {
+    console.warn("Rate limit check failed (database not available), allowing request")
+    return {
+      allowed: true,
+      remaining: maxAttempts,
+      resetAt: new Date(Date.now() + windowMinutes * 60 * 1000),
+    }
   }
 }
 
@@ -138,24 +178,44 @@ export async function checkIPRateLimit(
   maxAttempts: number,
   windowMinutes: number
 ): Promise<{ allowed: boolean; remaining: number; resetAt: Date }> {
+  if (!process.env.DATABASE_URL) {
+    return {
+      allowed: true,
+      remaining: maxAttempts,
+      resetAt: new Date(Date.now() + windowMinutes * 60 * 1000),
+    }
+  }
+
   const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000)
 
-  const attempts = await db.loginCode.count({
-    where: {
-      ipAddress,
-      createdAt: {
-        gte: windowStart,
-      },
-    },
-  })
+  try {
+    const attempts = await Promise.race([
+      db.loginCode.count({
+        where: {
+          ipAddress,
+          createdAt: {
+            gte: windowStart,
+          },
+        },
+      }),
+      new Promise<number>((resolve) => setTimeout(() => resolve(0), 1000)),
+    ])
 
-  const remaining = Math.max(0, maxAttempts - attempts)
-  const resetAt = new Date(Date.now() + windowMinutes * 60 * 1000)
+    const remaining = Math.max(0, maxAttempts - attempts)
+    const resetAt = new Date(Date.now() + windowMinutes * 60 * 1000)
 
-  return {
-    allowed: attempts < maxAttempts,
-    remaining,
-    resetAt,
+    return {
+      allowed: attempts < maxAttempts,
+      remaining,
+      resetAt,
+    }
+  } catch (error) {
+    console.warn("Rate limit check failed (database not available), allowing request")
+    return {
+      allowed: true,
+      remaining: maxAttempts,
+      resetAt: new Date(Date.now() + windowMinutes * 60 * 1000),
+    }
   }
 }
 
@@ -164,24 +224,44 @@ export async function checkIPVerificationRateLimit(
   maxAttempts: number,
   windowMinutes: number
 ): Promise<{ allowed: boolean; remaining: number; resetAt: Date }> {
+  if (!process.env.DATABASE_URL) {
+    return {
+      allowed: true,
+      remaining: maxAttempts,
+      resetAt: new Date(Date.now() + windowMinutes * 60 * 1000),
+    }
+  }
+
   const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000)
 
-  const attempts = await db.loginCode.count({
-    where: {
-      ipAddress,
-      createdAt: {
-        gte: windowStart,
-      },
-    },
-  })
+  try {
+    const attempts = await Promise.race([
+      db.loginCode.count({
+        where: {
+          ipAddress,
+          createdAt: {
+            gte: windowStart,
+          },
+        },
+      }),
+      new Promise<number>((resolve) => setTimeout(() => resolve(0), 1000)),
+    ])
 
-  const remaining = Math.max(0, maxAttempts - attempts)
-  const resetAt = new Date(Date.now() + windowMinutes * 60 * 1000)
+    const remaining = Math.max(0, maxAttempts - attempts)
+    const resetAt = new Date(Date.now() + windowMinutes * 60 * 1000)
 
-  return {
-    allowed: attempts < maxAttempts,
-    remaining,
-    resetAt,
+    return {
+      allowed: attempts < maxAttempts,
+      remaining,
+      resetAt,
+    }
+  } catch (error) {
+    console.warn("Rate limit check failed (database not available), allowing request")
+    return {
+      allowed: true,
+      remaining: maxAttempts,
+      resetAt: new Date(Date.now() + windowMinutes * 60 * 1000),
+    }
   }
 }
 
