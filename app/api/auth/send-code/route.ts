@@ -145,7 +145,12 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     )
   } catch (error) {
-    console.error("Error sending code:", error)
+    const errorDetails = error instanceof Error ? {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    } : { error: String(error) }
+    console.error("Error sending code:", JSON.stringify(errorDetails, null, 2))
     const errorMessage = error instanceof Error ? error.message : "Unknown error"
     return NextResponse.json(
       { error: "Failed to send code", details: errorMessage },
