@@ -37,13 +37,17 @@ export async function POST(request: NextRequest) {
     }
 
     if (ipAddress) {
-      const ipRateLimit = await checkIPVerificationRateLimit(ipAddress, 30, 15)
+      try {
+        const ipRateLimit = await checkIPVerificationRateLimit(ipAddress, 30, 15)
 
-      if (!ipRateLimit.allowed) {
-        return NextResponse.json(
-          { error: `Too many verification attempts from this IP. Please wait ${Math.ceil((ipRateLimit.resetAt.getTime() - Date.now()) / 60000)} minutes before trying again.` },
-          { status: 429 }
-        )
+        if (!ipRateLimit.allowed) {
+          return NextResponse.json(
+            { error: `Too many verification attempts from this IP. Please wait ${Math.ceil((ipRateLimit.resetAt.getTime() - Date.now()) / 60000)} minutes before trying again.` },
+            { status: 429 }
+          )
+        }
+      } catch (error) {
+        console.warn("IP rate limit check failed, continuing without IP rate limiting:", error)
       }
     }
 

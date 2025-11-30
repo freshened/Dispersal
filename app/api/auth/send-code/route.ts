@@ -64,13 +64,17 @@ export async function POST(request: NextRequest) {
     }
 
     if (ipAddress) {
-      const ipRateLimit = await checkIPRateLimit(ipAddress, 20, 60)
+      try {
+        const ipRateLimit = await checkIPRateLimit(ipAddress, 20, 60)
 
-      if (!ipRateLimit.allowed) {
-        return NextResponse.json(
-          { error: `Too many code requests from this IP. Please wait ${Math.ceil((ipRateLimit.resetAt.getTime() - Date.now()) / 60000)} minutes before requesting another code.` },
-          { status: 429 }
-        )
+        if (!ipRateLimit.allowed) {
+          return NextResponse.json(
+            { error: `Too many code requests from this IP. Please wait ${Math.ceil((ipRateLimit.resetAt.getTime() - Date.now()) / 60000)} minutes before requesting another code.` },
+            { status: 429 }
+          )
+        }
+      } catch (error) {
+        console.warn("IP rate limit check failed, continuing without IP rate limiting:", error)
       }
     }
 
@@ -94,14 +98,31 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    await db.loginCode.create({
-      data: {
+    try {
+      const loginCodeData: any = {
         email: normalizedEmail,
         code,
         expiresAt,
-        ipAddress,
-      },
-    })
+      }
+      if (ipAddress) {
+        loginCodeData.ipAddress = ipAddress
+      }
+      await db.loginCode.create({
+        data: loginCodeData,
+      })
+    } catch (error) {
+      if (error instanceof Error && (error.message.includes("ipAddress") || error.message.includes("Unknown argument"))) {
+        await db.loginCode.create({
+          data: {
+            email: normalizedEmail,
+            code,
+            expiresAt,
+          },
+        })
+      } else {
+        throw error
+      }
+    }
 
     const transporter = getTransporter()
 

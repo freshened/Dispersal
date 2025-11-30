@@ -189,14 +189,17 @@ export async function checkIPRateLimit(
   const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000)
 
   try {
+    const whereClause: any = {
+      createdAt: {
+        gte: windowStart,
+      },
+    }
+    if (ipAddress) {
+      whereClause.ipAddress = ipAddress
+    }
     const attempts = await Promise.race([
       db.loginCode.count({
-        where: {
-          ipAddress,
-          createdAt: {
-            gte: windowStart,
-          },
-        },
+        where: whereClause,
       }),
       new Promise<number>((resolve) => setTimeout(() => resolve(0), 1000)),
     ])
@@ -235,14 +238,17 @@ export async function checkIPVerificationRateLimit(
   const windowStart = new Date(Date.now() - windowMinutes * 60 * 1000)
 
   try {
+    const whereClause: any = {
+      createdAt: {
+        gte: windowStart,
+      },
+    }
+    if (ipAddress) {
+      whereClause.ipAddress = ipAddress
+    }
     const attempts = await Promise.race([
       db.loginCode.count({
-        where: {
-          ipAddress,
-          createdAt: {
-            gte: windowStart,
-          },
-        },
+        where: whereClause,
       }),
       new Promise<number>((resolve) => setTimeout(() => resolve(0), 1000)),
     ])
