@@ -76,7 +76,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <div className="prose prose-invert max-w-none">
               <div 
                 className="text-white leading-relaxed break-words overflow-wrap-anywhere"
-                dangerouslySetInnerHTML={{ __html: post.content }}
+                dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />') }}
                 style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
               />
             </div>

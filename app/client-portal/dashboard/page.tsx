@@ -8,19 +8,7 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { FileText, DollarSign, Calendar, Settings, LogOut, User, BarChart3, Users, Eye, Clock, Globe, Plus, TrendingUp, Trash2, BookOpen } from "lucide-react"
-import dynamic from "next/dynamic"
-
-const RichTextEditor = dynamic(
-  () => import("@/components/rich-text-editor").then((mod) => ({ default: mod.RichTextEditor })),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="bg-white/10 border border-white/20 rounded-lg p-4 min-h-[200px]">
-        <p className="text-white/50">Loading editor...</p>
-      </div>
-    ),
-  }
-)
+import { Textarea } from "@/components/ui/textarea"
 
 export default function DashboardPage() {
   const [user, setUser] = useState<{ id: string; email: string; name: string | null; role: string } | null>(null)
@@ -151,13 +139,6 @@ export default function DashboardPage() {
 
   const handleAddBlog = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    const textContent = newBlogContent.replace(/<[^>]*>/g, "").trim()
-    if (!textContent) {
-      alert("Please enter some content for the blog post")
-      return
-    }
-    
     setAddingBlog(true)
     try {
       const res = await fetch("/api/admin/blog", {
@@ -465,14 +446,16 @@ export default function DashboardPage() {
                   className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
                 />
                 <div>
-                  <label className="text-sm text-white/80 mb-2 block">Article Content</label>
-                  <RichTextEditor
+                  <Textarea
+                    placeholder="Article Content (HTML supported: &lt;b&gt;bold&lt;/b&gt;, &lt;i&gt;italic&lt;/i&gt;, &lt;h2&gt;heading&lt;/h2&gt;, &lt;p&gt;paragraph&lt;/p&gt;, &lt;br /&gt; for line breaks)"
                     value={newBlogContent}
-                    onChange={setNewBlogContent}
-                    placeholder="Start writing your article..."
+                    onChange={(e) => setNewBlogContent(e.target.value)}
+                    required
+                    rows={10}
+                    className="bg-white/10 border-white/20 text-white placeholder:text-white/50 font-mono text-sm"
                   />
                   <p className="text-xs text-white/50 mt-2">
-                    Select text and use the toolbar buttons to format (bold, italic, headings, font size, colors, etc.)
+                    You can use HTML tags for formatting: &lt;b&gt;bold&lt;/b&gt;, &lt;i&gt;italic&lt;/i&gt;, &lt;strong&gt;strong&lt;/strong&gt;, &lt;em&gt;emphasis&lt;/em&gt;, &lt;h2&gt;heading&lt;/h2&gt;, &lt;h3&gt;subheading&lt;/h3&gt;, &lt;p&gt;paragraph&lt;/p&gt;, &lt;br /&gt; for line breaks, &lt;span style="font-size: 18px"&gt;custom size&lt;/span&gt;
                   </p>
                 </div>
                 <Button
