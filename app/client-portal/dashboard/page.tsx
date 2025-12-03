@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { FileText, DollarSign, Calendar, Settings, LogOut, User, BarChart3, Users, Eye, Clock, Globe, Plus, TrendingUp, Trash2, BookOpen } from "lucide-react"
-import { Textarea } from "@/components/ui/textarea"
+import { RichTextEditor } from "@/components/rich-text-editor"
 
 export default function DashboardPage() {
   const [user, setUser] = useState<{ id: string; email: string; name: string | null; role: string } | null>(null)
@@ -139,6 +139,13 @@ export default function DashboardPage() {
 
   const handleAddBlog = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    const textContent = newBlogContent.replace(/<[^>]*>/g, "").trim()
+    if (!textContent) {
+      alert("Please enter some content for the blog post")
+      return
+    }
+    
     setAddingBlog(true)
     try {
       const res = await fetch("/api/admin/blog", {
@@ -446,16 +453,14 @@ export default function DashboardPage() {
                   className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
                 />
                 <div>
-                  <Textarea
-                    placeholder="Article Content (HTML supported: &lt;b&gt;bold&lt;/b&gt;, &lt;i&gt;italic&lt;/i&gt;, &lt;h2&gt;heading&lt;/h2&gt;, &lt;p&gt;paragraph&lt;/p&gt;, &lt;br /&gt; for line breaks)"
+                  <label className="text-sm text-white/80 mb-2 block">Article Content</label>
+                  <RichTextEditor
                     value={newBlogContent}
-                    onChange={(e) => setNewBlogContent(e.target.value)}
-                    required
-                    rows={10}
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/50 font-mono text-sm"
+                    onChange={setNewBlogContent}
+                    placeholder="Start writing your article..."
                   />
                   <p className="text-xs text-white/50 mt-2">
-                    You can use HTML tags for formatting: &lt;b&gt;bold&lt;/b&gt;, &lt;i&gt;italic&lt;/i&gt;, &lt;strong&gt;strong&lt;/strong&gt;, &lt;em&gt;emphasis&lt;/em&gt;, &lt;h2&gt;heading&lt;/h2&gt;, &lt;h3&gt;subheading&lt;/h3&gt;, &lt;p&gt;paragraph&lt;/p&gt;, &lt;br /&gt; for line breaks, &lt;span style="font-size: 18px"&gt;custom size&lt;/span&gt;
+                    Select text and use the toolbar buttons to format (bold, italic, headings, font size, colors, etc.)
                   </p>
                 </div>
                 <Button
