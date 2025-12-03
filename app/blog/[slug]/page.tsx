@@ -37,18 +37,29 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <div className="absolute inset-0 bg-black/60" />
         <Navigation />
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          <div className="absolute top-0 left-4 md:left-8">
-            <Link href="/blog">
-              <Button variant="ghost" size="sm" className="text-white/60 hover:text-white hover:bg-white/10">
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                <span className="text-sm">Back</span>
-              </Button>
-            </Link>
-          </div>
+          <Link href="/blog" className="mb-6 inline-block">
+            <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Blog
+            </Button>
+          </Link>
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">{post.title}</h1>
           <div className="flex items-center justify-center gap-4 text-white/80 text-sm">
             <div className="flex items-center gap-2">
-              <User className="h-4 w-4" />
+              {isAndrew ? (
+                <div className="relative h-6 w-6 rounded-full overflow-hidden border border-white/30">
+                  <Image
+                    src="/profilepic.jpg"
+                    alt="Andrew Tufarella"
+                    width={24}
+                    height={24}
+                    className="h-full w-full object-cover"
+                    sizes="24px"
+                  />
+                </div>
+              ) : (
+                <User className="h-4 w-4" />
+              )}
               <span>{post.author}</span>
             </div>
             <div className="flex items-center gap-2">
@@ -60,53 +71,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       </div>
 
       <section className="relative py-16 bg-background">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <Card className="glass-dark rounded-2xl p-8 border-white/10">
-                <div className="prose prose-invert max-w-none">
-                  <div 
-                    className="text-white leading-relaxed break-words overflow-wrap-anywhere"
-                    dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />') }}
-                    style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
-                  />
-                </div>
-              </Card>
+        <div className="max-w-4xl mx-auto px-4">
+          <Card className="glass-dark rounded-2xl p-8 border-white/10">
+            <div className="prose prose-invert max-w-none">
+              <div 
+                className="text-white leading-relaxed break-words overflow-wrap-anywhere"
+                dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />') }}
+                style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+              />
             </div>
-            
-            <div className="lg:col-span-1">
-              <Card className="glass-dark rounded-2xl p-6 border-white/10 sticky top-8">
-                {isAndrew ? (
-                  <div className="text-center">
-                    <div className="flex justify-center mb-3">
-                      <div className="relative h-20 w-20 rounded-full overflow-hidden border-2 border-white/20">
-                        <Image
-                          src="/profilepic.jpg"
-                          alt="Andrew Tufarella"
-                          width={80}
-                          height={80}
-                          className="h-full w-full object-cover"
-                          sizes="80px"
-                        />
-                      </div>
-                    </div>
-                    <p className="text-sm text-white/80">Written by</p>
-                    <h4 className="text-base font-semibold text-white mt-1">Andrew Tufarella</h4>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <div className="flex justify-center mb-3">
-                      <div className="relative h-20 w-20 rounded-full overflow-hidden border-2 border-white/20 bg-white/10 flex items-center justify-center">
-                        <User className="h-10 w-10 text-white/40" />
-                      </div>
-                    </div>
-                    <p className="text-sm text-white/80">Written by</p>
-                    <h4 className="text-base font-semibold text-white mt-1">{post.author}</h4>
-                  </div>
-                )}
-              </Card>
-            </div>
-          </div>
+          </Card>
         </div>
       </section>
 
