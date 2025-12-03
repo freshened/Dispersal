@@ -103,7 +103,7 @@ model RoofAssessmentLead {
 model PageView {
   id          String   @id @default(cuid())
   path        String
-  referrer    String?
+  referrer    String?  
   userAgent   String?
   ipAddress   String?
   country     String?
@@ -119,5 +119,18 @@ model PageView {
   @@index([createdAt])
   @@index([sessionId])
   @@index([ipAddress])
+}
+
+model BlogPost {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  author    String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([createdAt])
 }
 

@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-import { FileText, DollarSign, Calendar, Settings, LogOut, User, BarChart3, Users, Eye, Clock, Globe, Plus, TrendingUp, Trash2 } from "lucide-react"
+import { FileText, DollarSign, Calendar, Settings, LogOut, User, BarChart3, Users, Eye, Clock, Globe, Plus, TrendingUp, Trash2, BookOpen } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
 
 export default function DashboardPage() {
   const [user, setUser] = useState<{ id: string; email: string; name: string | null; role: string } | null>(null)
@@ -19,6 +20,13 @@ export default function DashboardPage() {
   const [newUserName, setNewUserName] = useState("")
   const [addingUser, setAddingUser] = useState(false)
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
+  const [blogPosts, setBlogPosts] = useState<any[]>([])
+  const [newBlogSlug, setNewBlogSlug] = useState("")
+  const [newBlogTitle, setNewBlogTitle] = useState("")
+  const [newBlogAuthor, setNewBlogAuthor] = useState("")
+  const [newBlogContent, setNewBlogContent] = useState("")
+  const [addingBlog, setAddingBlog] = useState(false)
+  const [deletingBlogId, setDeletingBlogId] = useState<string | null>(null)
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -29,6 +37,7 @@ export default function DashboardPage() {
           if (data.user.role === "admin") {
             loadAnalytics()
             loadUsers()
+            loadBlogPosts()
           }
         }
         setLoading(false)
@@ -113,6 +122,72 @@ export default function DashboardPage() {
       alert("Failed to delete user")
     } finally {
       setDeletingUserId(null)
+    }
+  }
+
+  const loadBlogPosts = async () => {
+    try {
+      const res = await fetch("/api/admin/blog")
+      const data = await res.json()
+      if (res.ok) {
+        setBlogPosts(data.posts)
+      }
+    } catch (error) {
+      console.error("Error loading blog posts:", error)
+    }
+  }
+
+  const handleAddBlog = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setAddingBlog(true)
+    try {
+      const res = await fetch("/api/admin/blog", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug: newBlogSlug,
+          title: newBlogTitle,
+          author: newBlogAuthor,
+          content: newBlogContent,
+        }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setNewBlogSlug("")
+        setNewBlogTitle("")
+        setNewBlogAuthor("")
+        setNewBlogContent("")
+        loadBlogPosts()
+      } else {
+        alert(data.error || "Failed to create blog post")
+      }
+    } catch (error) {
+      alert("Failed to create blog post")
+    } finally {
+      setAddingBlog(false)
+    }
+  }
+
+  const handleDeleteBlog = async (blogId: string) => {
+    if (!confirm("Are you sure you want to delete this blog post? This action cannot be undone.")) {
+      return
+    }
+
+    setDeletingBlogId(blogId)
+    try {
+      const res = await fetch(`/api/admin/blog/${blogId}`, {
+        method: "DELETE",
+      })
+      const data = await res.json()
+      if (res.ok) {
+        loadBlogPosts()
+      } else {
+        alert(data.error || "Failed to delete blog post")
+      }
+    } catch (error) {
+      alert("Failed to delete blog post")
+    } finally {
+      setDeletingBlogId(null)
     }
   }
 
@@ -324,6 +399,101 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </Card>
+
+            <Card className="glass-dark rounded-2xl p-6 border-white/10 mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-white">Blog Management</h3>
+                <Button
+                  onClick={() => {
+                    const form = document.getElementById("add-blog-form")
+                    if (form) {
+                      (form as HTMLFormElement).scrollIntoView({ behavior: "smooth" })
+                    }
+                  }}
+                  size="sm"
+                  className="bg-white text-black hover:bg-white/90"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Blog Post
+                </Button>
+              </div>
+
+              <form id="add-blog-form" onSubmit={handleAddBlog} className="mb-6 p-4 bg-white/5 rounded-lg space-y-3">
+                <Input
+                  type="text"
+                  placeholder="Endpoint (e.g., example-article)"
+                  value={newBlogSlug}
+                  onChange={(e) => setNewBlogSlug(e.target.value)}
+                  required
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                />
+                <Input
+                  type="text"
+                  placeholder="Article Title"
+                  value={newBlogTitle}
+                  onChange={(e) => setNewBlogTitle(e.target.value)}
+                  required
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                />
+                <Input
+                  type="text"
+                  placeholder="Author Name"
+                  value={newBlogAuthor}
+                  onChange={(e) => setNewBlogAuthor(e.target.value)}
+                  required
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                />
+                <Textarea
+                  placeholder="Article Content"
+                  value={newBlogContent}
+                  onChange={(e) => setNewBlogContent(e.target.value)}
+                  required
+                  rows={8}
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                />
+                <Button
+                  type="submit"
+                  disabled={addingBlog}
+                  className="bg-white text-black hover:bg-white/90"
+                >
+                  {addingBlog ? "Creating..." : "Create Blog Post"}
+                </Button>
+              </form>
+
+              <div className="space-y-2">
+                {blogPosts.map((post) => (
+                  <div key={post.id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
+                    <div className="flex-1">
+                      <p className="text-white font-medium">{post.title}</p>
+                      <p className="text-white/60 text-sm">/{post.slug} • By {post.author}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Link href={`/blog/${post.slug}`} target="_blank">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-white/20 text-white hover:bg-white/10"
+                        >
+                          <BookOpen className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Button
+                        onClick={() => handleDeleteBlog(post.id)}
+                        disabled={deletingBlogId === post.id}
+                        variant="outline"
+                        size="sm"
+                        className="border-red-500/50 text-red-500 hover:bg-red-500/10 hover:border-red-500"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                {blogPosts.length === 0 && (
+                  <p className="text-white/60 text-sm text-center py-4">No blog posts yet</p>
+                )}
               </div>
             </Card>
 
