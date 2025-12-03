@@ -33,7 +33,7 @@ export function Hero() {
         </h1>
 
         <p className="text-xl md:text-2xl text-white/95 mb-12 max-w-3xl mx-auto font-light text-pretty drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-          We build high performance website and marketing systems that actually <span className="font-the-bold italic">Convert</span>
+          We build high performance websites and marketing systems that actually <span className="font-the-bold italic">Convert</span>
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-center mb-16">
