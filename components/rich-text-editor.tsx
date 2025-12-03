@@ -1,8 +1,11 @@
 "use client"
 
-import { useMemo, useEffect } from "react"
+import { useMemo, useEffect, useState } from "react"
 import dynamic from "next/dynamic"
-import "react-quill/dist/quill.snow.css"
+
+if (typeof window !== "undefined") {
+  require("react-quill/dist/quill.snow.css")
+}
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false })
 
@@ -13,6 +16,12 @@ interface RichTextEditorProps {
 }
 
 export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const modules = useMemo(
     () => ({
       toolbar: [
@@ -81,6 +90,14 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
       document.head.removeChild(style)
     }
   }, [])
+
+  if (!mounted) {
+    return (
+      <div className="bg-white/10 border border-white/20 rounded-lg p-4 min-h-[200px]">
+        <p className="text-white/50">Loading editor...</p>
+      </div>
+    )
+  }
 
   return (
     <div className="rich-text-editor">
