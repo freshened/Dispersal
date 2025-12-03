@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-import { FileText, DollarSign, Calendar, Settings, LogOut, User, BarChart3, Users, Eye, Clock, Globe, Plus, TrendingUp } from "lucide-react"
+import { FileText, DollarSign, Calendar, Settings, LogOut, User, BarChart3, Users, Eye, Clock, Globe, Plus, TrendingUp, Trash2 } from "lucide-react"
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<{ email: string; name: string | null; role: string } | null>(null)
+  const [user, setUser] = useState<{ id: string; email: string; name: string | null; role: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [analytics, setAnalytics] = useState<any>(null)
   const [analyticsLoading, setAnalyticsLoading] = useState(false)
@@ -18,6 +18,7 @@ export default function DashboardPage() {
   const [newUserEmail, setNewUserEmail] = useState("")
   const [newUserName, setNewUserName] = useState("")
   const [addingUser, setAddingUser] = useState(false)
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -87,6 +88,31 @@ export default function DashboardPage() {
       alert("Failed to add user")
     } finally {
       setAddingUser(false)
+    }
+  }
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+      return
+    }
+
+    setDeletingUserId(userId)
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        loadUsers()
+      } else {
+        alert(data.error || "Failed to delete user")
+      }
+    } catch (error) {
+      alert("Failed to delete user")
+    } finally {
+      setDeletingUserId(null)
     }
   }
 
@@ -280,9 +306,22 @@ export default function DashboardPage() {
                       <p className="text-white font-medium">{u.name || u.email}</p>
                       <p className="text-white/60 text-sm">{u.email}</p>
                     </div>
-                    <span className="px-3 py-1 rounded-full bg-white/10 text-white text-sm capitalize">
-                      {u.role}
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="px-3 py-1 rounded-full bg-white/10 text-white text-sm capitalize">
+                        {u.role}
+                      </span>
+                      {u.id !== user?.id && (
+                        <Button
+                          onClick={() => handleDeleteUser(u.id)}
+                          disabled={deletingUserId === u.id}
+                          variant="outline"
+                          size="sm"
+                          className="border-red-500/50 text-red-500 hover:bg-red-500/10 hover:border-red-500"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
