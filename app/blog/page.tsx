@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Calendar, User } from "lucide-react"
 
+export const dynamic = 'force-dynamic'
+
 async function getBlogPosts() {
   try {
     const { db } = await import("@/lib/db")
