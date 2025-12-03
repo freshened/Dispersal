@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/auth"
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser()
@@ -16,8 +16,10 @@ export async function DELETE(
       )
     }
 
+    const { id } = await params
+
     const post = await db.blogPost.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!post) {
@@ -28,7 +30,7 @@ export async function DELETE(
     }
 
     await db.blogPost.delete({
-      where: { id: params.id },
+      where: { id },
     })
 
     return NextResponse.json({ success: true })
