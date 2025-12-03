@@ -13,13 +13,29 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    const response = NextResponse.redirect(new URL("/client-portal", request.url))
+    const forwardedHost = request.headers.get("x-forwarded-host")
+    const forwardedProto = request.headers.get("x-forwarded-proto") || "https"
+    const ngrokUrl = forwardedHost ? `${forwardedProto}://${forwardedHost}` : null
+    
+    const envBaseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://dispersal.net"
+    
+    const baseUrl = envBaseUrl || ngrokUrl || request.nextUrl.origin
+
+    const response = NextResponse.redirect(new URL("/client-portal", baseUrl))
     response.cookies.delete("session_token")
 
     return response
   } catch (error) {
     console.error("Error logging out:", error)
-    const response = NextResponse.redirect(new URL("/client-portal", request.url))
+    const forwardedHost = request.headers.get("x-forwarded-host")
+    const forwardedProto = request.headers.get("x-forwarded-proto") || "https"
+    const ngrokUrl = forwardedHost ? `${forwardedProto}://${forwardedHost}` : null
+    
+    const envBaseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://dispersal.net"
+    
+    const baseUrl = envBaseUrl || ngrokUrl || request.nextUrl.origin
+    
+    const response = NextResponse.redirect(new URL("/client-portal", baseUrl))
     response.cookies.delete("session_token")
     return response
   }
