@@ -8,7 +8,16 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { FileText, DollarSign, Calendar, Settings, LogOut, User, BarChart3, Users, Eye, Clock, Globe, Plus, TrendingUp, Trash2, BookOpen } from "lucide-react"
-import { RichTextEditor } from "@/components/rich-text-editor"
+import dynamic from "next/dynamic"
+
+const RichTextEditor = dynamic(() => import("@/components/rich-text-editor").then(mod => ({ default: mod.RichTextEditor })), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-white/10 border border-white/20 rounded-lg p-4 min-h-[200px]">
+      <p className="text-white/50">Loading editor...</p>
+    </div>
+  ),
+})
 
 export default function DashboardPage() {
   const [user, setUser] = useState<{ id: string; email: string; name: string | null; role: string } | null>(null)
