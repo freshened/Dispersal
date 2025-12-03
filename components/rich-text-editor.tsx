@@ -3,10 +3,6 @@
 import { useMemo, useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 
-if (typeof window !== "undefined") {
-  require("react-quill/dist/quill.snow.css")
-}
-
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false })
 
 interface RichTextEditorProps {
@@ -20,6 +16,15 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
 
   useEffect(() => {
     setMounted(true)
+    // Load CSS only when component mounts on client
+    if (typeof window !== "undefined") {
+      try {
+        // @ts-ignore - CSS import doesn't have types
+        require("react-quill/dist/quill.snow.css")
+      } catch (e) {
+        // CSS already loaded or failed to load
+      }
+    }
   }, [])
 
   const modules = useMemo(
