@@ -15,7 +15,7 @@ export function Hero() {
           <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-black via-zinc-900 to-black" />
         </video>
         {/* Darker overlay for better text contrast */}
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-black/60" />
         {/* Vignette effect - darker in center where text is */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_20%,_rgba(0,0,0,0.4)_70%)]" />
       </div>
@@ -29,13 +29,11 @@ export function Hero() {
         </div>
 
         <h1 className="text-6xl md:text-8xl font-bold text-white mb-6 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] leading-[1.1] text-balance">
-          We Build Digital
-          <br />
-          <span className="text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">Experiences</span>
+          More Calls. More Leads. More Revenue.
         </h1>
 
         <p className="text-xl md:text-2xl text-white/95 mb-12 max-w-3xl mx-auto font-light text-pretty drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-          Premium website design paired with comprehensive digital marketing. We deliver SEO, display advertising, and social media campaigns that drive results, so you can focus on growing your business.
+          We build high performance website and marketing systems that actually <span className="font-the-bold italic">Convert</span>
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-center mb-16">

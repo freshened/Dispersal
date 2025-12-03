@@ -1,6 +1,16 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@font-face {
+  font-family: "TheBoldFont";
+  src: url("/fonts/theboldfont.woff") format("woff"),
+       url("/fonts/theboldfont.ttf") format("truetype"),
+       url("/fonts/theboldfont.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -140,4 +150,8 @@
 
 .text-shadow-lg {
   text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.font-the-bold {
+  font-family: "TheBoldFont", sans-serif;
 }

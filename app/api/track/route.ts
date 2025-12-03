@@ -47,18 +47,28 @@ export async function POST(request: NextRequest) {
     const sessionId = request.cookies.get("analytics_session")?.value || 
                       `${Date.now()}-${Math.random().toString(36).substring(7)}`
 
-    await db.pageView.create({
-      data: {
-        path,
-        referrer: referrer || null,
-        userAgent: userAgent || null,
-        ipAddress: ipAddress || null,
-        deviceType: getDeviceType(userAgent),
-        browser: getBrowser(userAgent),
-        os: getOS(userAgent),
-        sessionId,
-      },
-    })
+    if (db.pageView) {
+      try {
+        await db.pageView.create({
+          data: {
+            path,
+            referrer: referrer || null,
+            userAgent: userAgent || null,
+            ipAddress: ipAddress || null,
+            deviceType: getDeviceType(userAgent),
+            browser: getBrowser(userAgent),
+            os: getOS(userAgent),
+            sessionId,
+          },
+        })
+      } catch (dbError) {
+        if (process.env.NODE_ENV === "development") {
+          console.warn("Database not available for tracking (this is expected in local development):", dbError)
+        } else {
+          console.error("Error tracking page view:", dbError)
+        }
+      }
+    }
 
     const response = NextResponse.json({ success: true })
     response.cookies.set("analytics_session", sessionId, {
@@ -70,6 +80,10 @@ export async function POST(request: NextRequest) {
 
     return response
   } catch (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("Tracking error (expected in local development):", error)
+      return NextResponse.json({ success: true })
+    }
     console.error("Error tracking page view:", error)
     return NextResponse.json({ error: "Failed to track" }, { status: 500 })
   }
