@@ -17,7 +17,7 @@ import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html"
 import { $isHeadingNode, $createHeadingNode } from "@lexical/rich-text"
 import { $isListNode, INSERT_UNORDERED_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND } from "@lexical/list"
 import { FORMAT_TEXT_COMMAND, FORMAT_ELEMENT_COMMAND } from "lexical"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2, Type } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -195,21 +195,23 @@ function ToolbarPlugin() {
   )
 }
 
-function SetInitialValuePlugin({ value }: { value: string }) {
+function SetInitialValuePlugin({ value, isInitialized }: { value: string; isInitialized: React.MutableRefObject<boolean> }) {
   const [editor] = useLexicalComposerContext()
 
   useEffect(() => {
-    if (value) {
+    if (!isInitialized.current && value) {
+      isInitialized.current = true
       editor.update(() => {
         const root = $getRoot()
-        root.clear()
-        const parser = new DOMParser()
-        const dom = parser.parseFromString(value, "text/html")
-        const nodes = $generateNodesFromDOM(editor, dom)
-        root.append(...nodes)
-      })
+        if (root.getFirstChild() === null) {
+          const parser = new DOMParser()
+          const dom = parser.parseFromString(value, "text/html")
+          const nodes = $generateNodesFromDOM(editor, dom)
+          root.append(...nodes)
+        }
+      }, { discrete: true })
     }
-  }, [editor, value])
+  }, [editor, value, isInitialized])
 
   return null
 }
@@ -235,6 +237,8 @@ function OnChangePluginWrapper({ onChange }: { onChange: (html: string) => void 
 }
 
 export function LexicalEditor({ value, onChange, placeholder = "Start writing..." }: LexicalEditorProps) {
+  const isInitialized = useRef(false)
+  
   const initialConfig = {
     namespace: "BlogEditor",
     theme,
@@ -274,7 +278,7 @@ export function LexicalEditor({ value, onChange, placeholder = "Start writing...
           />
           <OnChangePluginWrapper onChange={onChange} />
           <HistoryPlugin />
-          <SetInitialValuePlugin value={value} />
+          <SetInitialValuePlugin value={value} isInitialized={isInitialized} />
         </div>
       </LexicalComposer>
     </div>
