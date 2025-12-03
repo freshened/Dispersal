@@ -6,8 +6,19 @@ import Link from "next/link"
 import { Calendar, User, ArrowLeft } from "lucide-react"
 import { notFound } from "next/navigation"
 import Image from "next/image"
+import type { Metadata } from "next"
 
-async function getBlogPost(slug: string) {
+type BlogPost = {
+  id: string
+  slug: string
+  title: string
+  author: string
+  content: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+async function getBlogPost(slug: string): Promise<BlogPost | null> {
   try {
     const { db } = await import("@/lib/db")
     const post = await db.blogPost.findUnique({
@@ -17,6 +28,45 @@ async function getBlogPost(slug: string) {
   } catch (error) {
     console.error("Error fetching blog post:", error)
     return null
+  }
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const post = await getBlogPost(slug)
+
+  if (!post) {
+    return {
+      title: "Blog Post Not Found | Dispersal Digital Agency",
+    }
+  }
+
+  const description = post.content
+    .replace(/<[^>]*>/g, "")
+    .substring(0, 160)
+    .trim()
+
+  return {
+    title: `${post.title} | Dispersal Digital Agency Blog`,
+    description: description || `Read ${post.title} by ${post.author} on Dispersal Digital Agency's blog.`,
+    authors: [{ name: post.author }],
+    alternates: {
+      canonical: `https://dispersal.net/blog/${slug}`,
+    },
+    openGraph: {
+      title: post.title,
+      description: description || `Read ${post.title} by ${post.author}.`,
+      type: "article",
+      publishedTime: post.createdAt.toISOString(),
+      modifiedTime: post.updatedAt.toISOString(),
+      authors: [post.author],
+      url: `https://dispersal.net/blog/${slug}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: description || `Read ${post.title} by ${post.author}.`,
+    },
   }
 }
 

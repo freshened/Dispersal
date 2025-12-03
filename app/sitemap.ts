@@ -1,9 +1,34 @@
 import { MetadataRoute } from "next"
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://dispersal.net"
+type BlogPostSitemap = {
+  slug: string
+  updatedAt: Date
+}
 
-  return [
+async function getBlogPosts(): Promise<BlogPostSitemap[]> {
+  try {
+    const { db } = await import("@/lib/db")
+    const posts = await db.blogPost.findMany({
+      select: {
+        slug: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    })
+    return posts
+  } catch (error) {
+    console.error("Error fetching blog posts for sitemap:", error)
+    return []
+  }
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = "https://dispersal.net"
+  const blogPosts = await getBlogPosts()
+
+  const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
       lastModified: new Date(),
@@ -21,6 +46,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/services/web-design`,
@@ -65,5 +96,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.3,
     },
   ]
+
+  const blogPostPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: post.updatedAt,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }))
+
+  return [...staticPages, ...blogPostPages]
 }
 
