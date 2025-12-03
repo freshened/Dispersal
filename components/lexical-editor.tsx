@@ -12,14 +12,15 @@ import { ListItemNode, ListNode } from "@lexical/list"
 import { CodeHighlightNode, CodeNode } from "@lexical/code"
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table"
 import { LinkNode } from "@lexical/link"
-import { $getRoot, EditorState, $getSelection, $isRangeSelection } from "lexical"
+import { $getRoot, EditorState, $getSelection, $isRangeSelection, $isTextNode } from "lexical"
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html"
 import { $isHeadingNode, $createHeadingNode } from "@lexical/rich-text"
 import { $isListNode, INSERT_UNORDERED_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND } from "@lexical/list"
 import { FORMAT_TEXT_COMMAND, FORMAT_ELEMENT_COMMAND } from "lexical"
 import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2 } from "lucide-react"
+import { Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2, Type } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const theme = {
   text: {
@@ -85,6 +86,25 @@ function ToolbarPlugin() {
     }
   }
 
+  const formatFontSize = (fontSize: string) => {
+    editor.update(() => {
+      const selection = $getSelection()
+      if ($isRangeSelection(selection) && !selection.isCollapsed()) {
+        const nodes = selection.getNodes()
+        nodes.forEach((node) => {
+          if ($isTextNode(node)) {
+            const currentStyle = node.getStyle() || ''
+            const cleanedStyle = currentStyle.replace(/font-size:\s*[^;]+;?/g, '').trim()
+            const newStyle = cleanedStyle 
+              ? `${cleanedStyle}; font-size: ${fontSize};`
+              : `font-size: ${fontSize};`
+            node.setStyle(newStyle)
+          }
+        })
+      }
+    })
+  }
+
   return (
     <div className="flex gap-2 p-2 border-b border-white/10 bg-white/5 rounded-t-lg">
       <Button
@@ -133,6 +153,25 @@ function ToolbarPlugin() {
       >
         <Heading2 className="h-4 w-4" />
       </Button>
+      <div className="w-px bg-white/20 mx-1" />
+      <Select onValueChange={formatFontSize}>
+        <SelectTrigger className="h-8 w-auto px-2 text-white border-white/20 bg-white/5 hover:bg-white/10 text-xs">
+          <Type className="h-3 w-3 mr-1" />
+          <SelectValue placeholder="Size" />
+        </SelectTrigger>
+        <SelectContent className="bg-zinc-900 border-white/20">
+          <SelectItem value="12px">12px</SelectItem>
+          <SelectItem value="14px">14px</SelectItem>
+          <SelectItem value="16px">16px</SelectItem>
+          <SelectItem value="18px">18px</SelectItem>
+          <SelectItem value="20px">20px</SelectItem>
+          <SelectItem value="24px">24px</SelectItem>
+          <SelectItem value="28px">28px</SelectItem>
+          <SelectItem value="32px">32px</SelectItem>
+          <SelectItem value="36px">36px</SelectItem>
+          <SelectItem value="48px">48px</SelectItem>
+        </SelectContent>
+      </Select>
       <div className="w-px bg-white/20 mx-1" />
       <Button
         type="button"
