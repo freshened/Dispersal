@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useEffect } from "react"
 import dynamic from "next/dynamic"
 import "react-quill/dist/quill.snow.css"
 
@@ -28,6 +28,60 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
     []
   )
 
+  useEffect(() => {
+    const style = document.createElement("style")
+    style.textContent = `
+      .rich-text-editor .ql-container {
+        font-size: 14px;
+        min-height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-top: none;
+        border-radius: 0 0 0.5rem 0.5rem;
+      }
+      .rich-text-editor .ql-editor {
+        color: white;
+        min-height: 200px;
+      }
+      .rich-text-editor .ql-editor.ql-blank::before {
+        color: rgba(255, 255, 255, 0.5);
+        font-style: normal;
+      }
+      .rich-text-editor .ql-toolbar {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 0.5rem 0.5rem 0 0;
+      }
+      .rich-text-editor .ql-toolbar .ql-stroke {
+        stroke: white;
+      }
+      .rich-text-editor .ql-toolbar .ql-fill {
+        fill: white;
+      }
+      .rich-text-editor .ql-toolbar .ql-picker-label {
+        color: white;
+      }
+      .rich-text-editor .ql-toolbar button:hover,
+      .rich-text-editor .ql-toolbar button.ql-active {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .rich-text-editor .ql-toolbar .ql-picker-options {
+        background: rgba(0, 0, 0, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .rich-text-editor .ql-toolbar .ql-picker-item {
+        color: white;
+      }
+      .rich-text-editor .ql-toolbar .ql-picker-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+    `
+    document.head.appendChild(style)
+    return () => {
+      document.head.removeChild(style)
+    }
+  }, [])
+
   return (
     <div className="rich-text-editor">
       <ReactQuill
@@ -37,52 +91,6 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
         modules={modules}
         placeholder={placeholder}
       />
-      <style jsx global>{`
-        .rich-text-editor .ql-container {
-          font-size: 14px;
-          min-height: 200px;
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-top: none;
-          border-radius: 0 0 0.5rem 0.5rem;
-        }
-        .rich-text-editor .ql-editor {
-          color: white;
-          min-height: 200px;
-        }
-        .rich-text-editor .ql-editor.ql-blank::before {
-          color: rgba(255, 255, 255, 0.5);
-          font-style: normal;
-        }
-        .rich-text-editor .ql-toolbar {
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 0.5rem 0.5rem 0 0;
-        }
-        .rich-text-editor .ql-toolbar .ql-stroke {
-          stroke: white;
-        }
-        .rich-text-editor .ql-toolbar .ql-fill {
-          fill: white;
-        }
-        .rich-text-editor .ql-toolbar .ql-picker-label {
-          color: white;
-        }
-        .rich-text-editor .ql-toolbar button:hover,
-        .rich-text-editor .ql-toolbar button.ql-active {
-          background: rgba(255, 255, 255, 0.1);
-        }
-        .rich-text-editor .ql-toolbar .ql-picker-options {
-          background: rgba(0, 0, 0, 0.9);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .rich-text-editor .ql-toolbar .ql-picker-item {
-          color: white;
-        }
-        .rich-text-editor .ql-toolbar .ql-picker-item:hover {
-          background: rgba(255, 255, 255, 0.1);
-        }
-      `}</style>
     </div>
   )
 }
