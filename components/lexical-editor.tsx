@@ -257,10 +257,13 @@ export function LexicalEditor({ value, onChange, placeholder = "Start writing...
     <div className="border border-white/20 rounded-lg overflow-hidden bg-white/10">
       <LexicalComposer initialConfig={initialConfig}>
         <ToolbarPlugin />
-        <div className="relative">
+        <div className="relative" dir="ltr">
           <RichTextPlugin
             contentEditable={
-              <ContentEditable className="min-h-[300px] p-4 text-white outline-none prose prose-invert max-w-none" />
+              <ContentEditable 
+                className="min-h-[300px] p-4 text-white outline-none prose prose-invert max-w-none" 
+                dir="ltr"
+              />
             }
             placeholder={
               <div className="absolute top-4 left-4 text-white/50 pointer-events-none">
