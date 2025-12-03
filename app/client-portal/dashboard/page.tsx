@@ -445,14 +445,19 @@ export default function DashboardPage() {
                   required
                   className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
                 />
-                <Textarea
-                  placeholder="Article Content"
-                  value={newBlogContent}
-                  onChange={(e) => setNewBlogContent(e.target.value)}
-                  required
-                  rows={8}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
-                />
+                <div>
+                  <Textarea
+                    placeholder="Article Content (HTML supported: &lt;b&gt;bold&lt;/b&gt;, &lt;i&gt;italic&lt;/i&gt;, &lt;h2&gt;heading&lt;/h2&gt;, &lt;p&gt;paragraph&lt;/p&gt;, &lt;br /&gt; for line breaks)"
+                    value={newBlogContent}
+                    onChange={(e) => setNewBlogContent(e.target.value)}
+                    required
+                    rows={10}
+                    className="bg-white/10 border-white/20 text-white placeholder:text-white/50 font-mono text-sm"
+                  />
+                  <p className="text-xs text-white/50 mt-2">
+                    You can use HTML tags for formatting: &lt;b&gt;bold&lt;/b&gt;, &lt;i&gt;italic&lt;/i&gt;, &lt;strong&gt;strong&lt;/strong&gt;, &lt;em&gt;emphasis&lt;/em&gt;, &lt;h2&gt;heading&lt;/h2&gt;, &lt;h3&gt;subheading&lt;/h3&gt;, &lt;p&gt;paragraph&lt;/p&gt;, &lt;br /&gt; for line breaks, &lt;span style="font-size: 18px"&gt;custom size&lt;/span&gt;
+                  </p>
+                </div>
                 <Button
                   type="submit"
                   disabled={addingBlog}

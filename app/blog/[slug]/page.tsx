@@ -65,44 +65,43 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <div className="lg:col-span-2">
               <Card className="glass-dark rounded-2xl p-8 border-white/10">
                 <div className="prose prose-invert max-w-none">
-                  <div className="text-white whitespace-pre-wrap leading-relaxed">{post.content}</div>
+                  <div 
+                    className="text-white leading-relaxed break-words overflow-wrap-anywhere"
+                    dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />') }}
+                    style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
+                  />
                 </div>
               </Card>
             </div>
             
             <div className="lg:col-span-1">
               <Card className="glass-dark rounded-2xl p-6 border-white/10 sticky top-8">
-                <h3 className="text-xl font-bold text-white mb-4">About the Author</h3>
                 {isAndrew ? (
-                  <>
-                    <div className="flex justify-center mb-4">
-                      <div className="relative h-24 w-24 rounded-full overflow-hidden border-2 border-white/20">
+                  <div className="text-center">
+                    <div className="flex justify-center mb-3">
+                      <div className="relative h-20 w-20 rounded-full overflow-hidden border-2 border-white/20">
                         <Image
                           src="/profilepic.jpg"
                           alt="Andrew Tufarella"
-                          width={96}
-                          height={96}
+                          width={80}
+                          height={80}
                           className="h-full w-full object-cover"
-                          sizes="96px"
+                          sizes="80px"
                         />
                       </div>
                     </div>
-                    <h4 className="text-lg font-semibold text-white text-center mb-1">Andrew Tufarella</h4>
-                    <p className="text-sm text-white/60 text-center mb-2">Senior Software Developer</p>
-                    <p className="text-sm text-white/60 text-center mb-4">DHL Express</p>
-                    <p className="text-sm text-white/70 leading-relaxed">
-                      Senior Software Developer at DHL Express with deep expertise in enterprise automation, AI, and applied data systems.
-                    </p>
-                  </>
+                    <p className="text-sm text-white/80">Written by</p>
+                    <h4 className="text-base font-semibold text-white mt-1">Andrew Tufarella</h4>
+                  </div>
                 ) : (
                   <div className="text-center">
-                    <div className="flex justify-center mb-4">
-                      <div className="relative h-24 w-24 rounded-full overflow-hidden border-2 border-white/20 bg-white/10 flex items-center justify-center">
-                        <User className="h-12 w-12 text-white/40" />
+                    <div className="flex justify-center mb-3">
+                      <div className="relative h-20 w-20 rounded-full overflow-hidden border-2 border-white/20 bg-white/10 flex items-center justify-center">
+                        <User className="h-10 w-10 text-white/40" />
                       </div>
                     </div>
-                    <h4 className="text-lg font-semibold text-white mb-2">{post.author}</h4>
-                    <p className="text-sm text-white/60">Contributor</p>
+                    <p className="text-sm text-white/80">Written by</p>
+                    <h4 className="text-base font-semibold text-white mt-1">{post.author}</h4>
                   </div>
                 )}
               </Card>
