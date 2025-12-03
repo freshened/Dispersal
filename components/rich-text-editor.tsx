@@ -3,6 +3,11 @@
 import { useMemo, useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 
+// Load polyfill before react-quill
+if (typeof window !== "undefined") {
+  import("@/lib/react-polyfill").catch(() => {})
+}
+
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false })
 
 interface RichTextEditorProps {
@@ -16,6 +21,10 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
 
   useEffect(() => {
     setMounted(true)
+    // Load polyfill first
+    if (typeof window !== "undefined") {
+      import("@/lib/react-polyfill").catch(() => {})
+    }
     // Load CSS only when component mounts on client
     if (typeof window !== "undefined") {
       try {

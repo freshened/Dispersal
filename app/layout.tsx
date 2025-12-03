@@ -1,9 +1,15 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
+import dynamic from "next/dynamic"
 import { AnalyticsTracker } from "@/components/analytics-tracker"
 import "./globals.css"
+
+// Only load Analytics if Vercel Analytics is enabled
+const Analytics = dynamic(
+  () => import("@vercel/analytics/next").then((mod) => mod.Analytics),
+  { ssr: false }
+)
 
 const inter = Inter({ 
   subsets: ["latin"], 
