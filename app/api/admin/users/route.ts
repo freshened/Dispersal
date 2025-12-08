@@ -57,6 +57,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const allowedRoles = ["client", "admin"]
+    const userRole = role && allowedRoles.includes(role) ? role : "client"
+
     const normalizedEmail = email.toLowerCase().trim()
 
     const existingUser = await db.user.findUnique({
@@ -74,7 +77,7 @@ export async function POST(request: NextRequest) {
       data: {
         email: normalizedEmail,
         name: name || null,
-        role: role || "client",
+        role: userRole,
       },
     })
 
