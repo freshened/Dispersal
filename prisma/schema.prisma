@@ -130,6 +130,9 @@ model BlogPost {
   googleIndexed         Boolean   @default(false)
   googleIndexedAt       DateTime?
   googleIndexingError   String?
+  indexNowIndexed       Boolean   @default(false)
+  indexNowIndexedAt     DateTime?
+  indexNowError         String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 

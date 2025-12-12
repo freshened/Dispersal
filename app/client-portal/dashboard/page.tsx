@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-import { FileText, DollarSign, Calendar, Settings, LogOut, User, BarChart3, Users, Eye, Clock, Globe, Plus, TrendingUp, Trash2, BookOpen } from "lucide-react"
+import { FileText, DollarSign, Calendar, Settings, LogOut, User, BarChart3, Users, Eye, Clock, Globe, Plus, TrendingUp, Trash2, BookOpen, Send } from "lucide-react"
 import { LexicalEditor } from "@/components/lexical-editor"
 
 export default function DashboardPage() {
@@ -27,6 +27,8 @@ export default function DashboardPage() {
   const [newBlogContent, setNewBlogContent] = useState("")
   const [addingBlog, setAddingBlog] = useState(false)
   const [deletingBlogId, setDeletingBlogId] = useState<string | null>(null)
+  const [submittingToIndex, setSubmittingToIndex] = useState<string | null>(null)
+  const [submittingSitemap, setSubmittingSitemap] = useState(false)
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -195,6 +197,114 @@ export default function DashboardPage() {
       alert("Failed to delete blog post")
     } finally {
       setDeletingBlogId(null)
+    }
+  }
+
+  const handleSubmitToGoogle = async (blogId: string) => {
+    setSubmittingToIndex(blogId)
+    try {
+      const res = await fetch(`/api/admin/blog/${blogId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "submit-to-google" }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        loadBlogPosts()
+        if (data.googleIndexing.success) {
+          alert("Blog post submitted to Google Indexing API successfully!")
+        } else {
+          alert(`Google Indexing API submission failed: ${data.googleIndexing.error || "Unknown error"}`)
+        }
+      } else {
+        alert(data.error || "Failed to submit to Google Indexing API")
+      }
+    } catch (error) {
+      alert("Failed to submit to Google Indexing API")
+    } finally {
+      setSubmittingToIndex(null)
+    }
+  }
+
+  const handleSubmitToIndexNow = async (blogId: string) => {
+    setSubmittingToIndex(blogId)
+    try {
+      const res = await fetch(`/api/admin/blog/${blogId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "submit-to-indexnow" }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        loadBlogPosts()
+        if (data.indexNow.success) {
+          alert("Blog post submitted to IndexNow successfully!")
+        } else {
+          alert(`IndexNow submission failed: ${data.indexNow.error || "Unknown error"}`)
+        }
+      } else {
+        alert(data.error || "Failed to submit to IndexNow")
+      }
+    } catch (error) {
+      alert("Failed to submit to IndexNow")
+    } finally {
+      setSubmittingToIndex(null)
+    }
+  }
+
+  const handleSubmitToAll = async (blogId: string) => {
+    setSubmittingToIndex(blogId)
+    try {
+      const res = await fetch(`/api/admin/blog/${blogId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "submit-to-all" }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        loadBlogPosts()
+        const messages = []
+        if (data.googleIndexing.success) {
+          messages.push("Google: Success")
+        } else {
+          messages.push(`Google: ${data.googleIndexing.error || "Failed"}`)
+        }
+        if (data.indexNow.success) {
+          messages.push("IndexNow: Success")
+        } else {
+          messages.push(`IndexNow: ${data.indexNow.error || "Failed"}`)
+        }
+        alert(messages.join("\n"))
+      } else {
+        alert(data.error || "Failed to submit to search engines")
+      }
+    } catch (error) {
+      alert("Failed to submit to search engines")
+    } finally {
+      setSubmittingToIndex(null)
+    }
+  }
+
+  const handleSubmitSitemapToIndexNow = async () => {
+    if (!confirm("This will submit all pages from your sitemap (homepage, about, contact, services, blog posts, etc.) to IndexNow. Continue?")) {
+      return
+    }
+
+    setSubmittingSitemap(true)
+    try {
+      const res = await fetch("/api/admin/indexnow", {
+        method: "POST",
+      })
+      const data = await res.json()
+      if (res.ok) {
+        alert(`Successfully submitted ${data.submitted} URLs to IndexNow!${data.failed > 0 ? ` (${data.failed} failed)` : ""}`)
+      } else {
+        alert(data.error || "Failed to submit sitemap to IndexNow")
+      }
+    } catch (error) {
+      alert("Failed to submit sitemap to IndexNow")
+    } finally {
+      setSubmittingSitemap(false)
     }
   }
 
@@ -412,19 +522,38 @@ export default function DashboardPage() {
             <Card className="glass-dark rounded-2xl p-6 border-white/10 mb-8">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-white">Blog Management</h3>
-                <Button
-                  onClick={() => {
-                    const form = document.getElementById("add-blog-form")
-                    if (form) {
-                      (form as HTMLFormElement).scrollIntoView({ behavior: "smooth" })
-                    }
-                  }}
-                  size="sm"
-                  className="bg-white text-black hover:bg-white/90"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Blog Post
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={handleSubmitSitemapToIndexNow}
+                    disabled={submittingSitemap}
+                    size="sm"
+                    variant="outline"
+                    className="border-cyan-500/50 text-cyan-500 hover:bg-cyan-500/10 hover:border-cyan-500"
+                    title="Submit entire sitemap to IndexNow (all pages + blog posts)"
+                  >
+                    {submittingSitemap ? (
+                      "Submitting..."
+                    ) : (
+                      <>
+                        <Globe className="h-4 w-4 mr-2" />
+                        Submit Entire Site to IndexNow
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const form = document.getElementById("add-blog-form")
+                      if (form) {
+                        (form as HTMLFormElement).scrollIntoView({ behavior: "smooth" })
+                      }
+                    }}
+                    size="sm"
+                    className="bg-white text-black hover:bg-white/90"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Blog Post
+                  </Button>
+                </div>
               </div>
 
               <form id="add-blog-form" onSubmit={handleAddBlog} className="mb-6 p-4 bg-white/5 rounded-lg space-y-3">
@@ -472,11 +601,11 @@ export default function DashboardPage() {
                     <div className="flex-1">
                       <p className="text-white font-medium">{post.title}</p>
                       <p className="text-white/60 text-sm">/{post.slug} • By {post.author}</p>
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
                         {post.googleIndexed ? (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs">
                             <span className="h-1.5 w-1.5 rounded-full bg-green-400"></span>
-                            Google Indexed
+                            Google
                             {post.googleIndexedAt && (
                               <span className="text-green-300/60">
                                 {new Date(post.googleIndexedAt).toLocaleDateString()}
@@ -486,7 +615,7 @@ export default function DashboardPage() {
                         ) : (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 text-xs">
                             <span className="h-1.5 w-1.5 rounded-full bg-yellow-400"></span>
-                            Not Indexed
+                            Google
                             {post.googleIndexingError && (
                               <span className="text-yellow-300/60" title={post.googleIndexingError}>
                                 (Error)
@@ -494,9 +623,73 @@ export default function DashboardPage() {
                             )}
                           </span>
                         )}
+                        {post.indexNowIndexed ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs">
+                            <span className="h-1.5 w-1.5 rounded-full bg-green-400"></span>
+                            IndexNow
+                            {post.indexNowIndexedAt && (
+                              <span className="text-green-300/60">
+                                {new Date(post.indexNowIndexedAt).toLocaleDateString()}
+                              </span>
+                            )}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 text-xs">
+                            <span className="h-1.5 w-1.5 rounded-full bg-yellow-400"></span>
+                            IndexNow
+                            {post.indexNowError && (
+                              <span className="text-yellow-300/60" title={post.indexNowError}>
+                                (Error)
+                              </span>
+                            )}
+                          </span>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      {(!post.googleIndexed || !post.indexNowIndexed) && (
+                        <Button
+                          onClick={() => handleSubmitToAll(post.id)}
+                          disabled={submittingToIndex === post.id}
+                          variant="outline"
+                          size="sm"
+                          className="border-blue-500/50 text-blue-500 hover:bg-blue-500/10 hover:border-blue-500"
+                          title="Submit to all search engines"
+                        >
+                          {submittingToIndex === post.id ? (
+                            "Submitting..."
+                          ) : (
+                            <>
+                              <Send className="h-4 w-4 mr-1" />
+                              Submit All
+                            </>
+                          )}
+                        </Button>
+                      )}
+                      {!post.googleIndexed && (
+                        <Button
+                          onClick={() => handleSubmitToGoogle(post.id)}
+                          disabled={submittingToIndex === post.id}
+                          variant="outline"
+                          size="sm"
+                          className="border-purple-500/50 text-purple-500 hover:bg-purple-500/10 hover:border-purple-500"
+                          title="Submit to Google"
+                        >
+                          <Send className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {!post.indexNowIndexed && (
+                        <Button
+                          onClick={() => handleSubmitToIndexNow(post.id)}
+                          disabled={submittingToIndex === post.id}
+                          variant="outline"
+                          size="sm"
+                          className="border-cyan-500/50 text-cyan-500 hover:bg-cyan-500/10 hover:border-cyan-500"
+                          title="Submit to IndexNow (Bing, Yandex, etc.)"
+                        >
+                          <Send className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Link href={`/blog/${post.slug}`} target="_blank">
                         <Button
                           variant="outline"

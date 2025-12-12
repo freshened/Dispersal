@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { getCurrentUser } from "@/lib/auth"
 import { submitBlogPostToGoogle } from "@/lib/google-indexing"
+import { submitBlogPostToIndexNow } from "@/lib/indexnow"
 
 export async function GET(request: NextRequest) {
   try {
@@ -74,26 +75,35 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    const googleSubmission = await submitBlogPostToGoogle(normalizedSlug)
+    const [googleSubmission, indexNowSubmission] = await Promise.all([
+      submitBlogPostToGoogle(normalizedSlug),
+      submitBlogPostToIndexNow(normalizedSlug),
+    ])
+    
+    const updateData: any = {}
     
     if (googleSubmission.success) {
-      await db.blogPost.update({
-        where: { id: newPost.id },
-        data: {
-          googleIndexed: true,
-          googleIndexedAt: new Date(),
-          googleIndexingError: null,
-        },
-      })
+      updateData.googleIndexed = true
+      updateData.googleIndexedAt = new Date()
+      updateData.googleIndexingError = null
     } else {
-      await db.blogPost.update({
-        where: { id: newPost.id },
-        data: {
-          googleIndexed: false,
-          googleIndexingError: googleSubmission.error || "Unknown error",
-        },
-      })
+      updateData.googleIndexed = false
+      updateData.googleIndexingError = googleSubmission.error || "Unknown error"
     }
+    
+    if (indexNowSubmission.success) {
+      updateData.indexNowIndexed = true
+      updateData.indexNowIndexedAt = new Date()
+      updateData.indexNowError = null
+    } else {
+      updateData.indexNowIndexed = false
+      updateData.indexNowError = indexNowSubmission.error || "Unknown error"
+    }
+    
+    await db.blogPost.update({
+      where: { id: newPost.id },
+      data: updateData,
+    })
 
     const updatedPost = await db.blogPost.findUnique({
       where: { id: newPost.id },
@@ -111,8 +121,12 @@ export async function POST(request: NextRequest) {
         googleIndexed: updatedPost!.googleIndexed,
         googleIndexedAt: updatedPost!.googleIndexedAt,
         googleIndexingError: updatedPost!.googleIndexingError,
+        indexNowIndexed: updatedPost!.indexNowIndexed,
+        indexNowIndexedAt: updatedPost!.indexNowIndexedAt,
+        indexNowError: updatedPost!.indexNowError,
       },
       googleIndexing: googleSubmission,
+      indexNow: indexNowSubmission,
     })
   } catch (error) {
     console.error("Error creating blog post:", error)
