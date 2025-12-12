@@ -30,3 +30,7 @@ next-env.d.ts
 *-*.json
 google-service-account.json
 void-code-*.json
+
+# deployment files
+dispersal-deploy.zip
+*.zip
