@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { getCurrentUser } from "@/lib/auth"
 import { submitBlogPostToGoogle } from "@/lib/google-indexing"
@@ -97,6 +98,8 @@ export async function POST(request: NextRequest) {
     const updatedPost = await db.blogPost.findUnique({
       where: { id: newPost.id },
     })
+
+    revalidatePath("/sitemap.xml")
 
     return NextResponse.json({
       post: {

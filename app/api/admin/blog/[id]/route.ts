@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { db } from "@/lib/db"
 import { getCurrentUser } from "@/lib/auth"
 import { removeBlogPostFromGoogle } from "@/lib/google-indexing"
@@ -35,6 +36,8 @@ export async function DELETE(
     await db.blogPost.delete({
       where: { id },
     })
+
+    revalidatePath("/sitemap.xml")
 
     return NextResponse.json({ 
       success: true,

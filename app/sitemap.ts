@@ -17,6 +17,7 @@ async function getBlogPosts(): Promise<BlogPostSitemap[]> {
         updatedAt: "desc",
       },
     })
+    console.log(`Sitemap: Found ${posts.length} blog posts`)
     return posts
   } catch (error) {
     console.error("Error fetching blog posts for sitemap:", error)
@@ -106,4 +107,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [...staticPages, ...blogPostPages]
 }
+
+export const revalidate = 0
 
