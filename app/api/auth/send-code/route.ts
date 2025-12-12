@@ -41,9 +41,38 @@ function getTransporter() {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { email } = body
-
+    const contentType = request.headers.get("content-type") || ""
+    console.log("Content-Type header:", contentType)
+    
+    let body: any
+    let email: string | undefined
+    
+    if (contentType.includes("application/json")) {
+      try {
+        const rawText = await request.text()
+        console.log("Raw request body received:", rawText)
+        console.log("Body length:", rawText.length)
+        console.log("First 50 chars:", rawText.substring(0, 50))
+        
+        body = JSON.parse(rawText)
+        email = body?.email
+        console.log("Successfully parsed JSON, email:", email)
+      } catch (parseError) {
+        console.error("JSON parse error details:", {
+          error: parseError instanceof Error ? parseError.message : String(parseError),
+          stack: parseError instanceof Error ? parseError.stack : undefined
+        })
+        return NextResponse.json(
+          { error: "Invalid JSON format", details: parseError instanceof Error ? parseError.message : "Unknown error" },
+          { status: 400 }
+        )
+      }
+    } else {
+      const formData = await request.formData()
+      email = formData.get("email") as string
+      body = { email }
+    }
+    
     if (!email) {
       return NextResponse.json(
         { error: "Email is required" },

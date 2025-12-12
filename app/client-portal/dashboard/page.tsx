@@ -158,6 +158,13 @@ export default function DashboardPage() {
         setNewBlogAuthor("")
         setNewBlogContent("")
         loadBlogPosts()
+        if (data.googleIndexing) {
+          if (data.googleIndexing.success) {
+            alert("Blog post created and submitted to Google Indexing API successfully!")
+          } else {
+            alert(`Blog post created, but Google Indexing API submission failed: ${data.googleIndexing.error || "Unknown error"}`)
+          }
+        }
       } else {
         alert(data.error || "Failed to create blog post")
       }
@@ -460,11 +467,34 @@ export default function DashboardPage() {
               </form>
 
               <div className="space-y-2">
-                {blogPosts.map((post) => (
+                {blogPosts.map((post: any) => (
                   <div key={post.id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
                     <div className="flex-1">
                       <p className="text-white font-medium">{post.title}</p>
                       <p className="text-white/60 text-sm">/{post.slug} • By {post.author}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        {post.googleIndexed ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs">
+                            <span className="h-1.5 w-1.5 rounded-full bg-green-400"></span>
+                            Google Indexed
+                            {post.googleIndexedAt && (
+                              <span className="text-green-300/60">
+                                {new Date(post.googleIndexedAt).toLocaleDateString()}
+                              </span>
+                            )}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 text-xs">
+                            <span className="h-1.5 w-1.5 rounded-full bg-yellow-400"></span>
+                            Not Indexed
+                            {post.googleIndexingError && (
+                              <span className="text-yellow-300/60" title={post.googleIndexingError}>
+                                (Error)
+                              </span>
+                            )}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <Link href={`/blog/${post.slug}`} target="_blank">

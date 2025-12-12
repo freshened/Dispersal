@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { getCurrentUser } from "@/lib/auth"
+import { submitBlogPostToGoogle } from "@/lib/google-indexing"
 
 export async function GET(request: NextRequest) {
   try {
@@ -72,14 +73,43 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    const googleSubmission = await submitBlogPostToGoogle(normalizedSlug)
+    
+    if (googleSubmission.success) {
+      await db.blogPost.update({
+        where: { id: newPost.id },
+        data: {
+          googleIndexed: true,
+          googleIndexedAt: new Date(),
+          googleIndexingError: null,
+        },
+      })
+    } else {
+      await db.blogPost.update({
+        where: { id: newPost.id },
+        data: {
+          googleIndexed: false,
+          googleIndexingError: googleSubmission.error || "Unknown error",
+        },
+      })
+    }
+
+    const updatedPost = await db.blogPost.findUnique({
+      where: { id: newPost.id },
+    })
+
     return NextResponse.json({
       post: {
-        id: newPost.id,
-        slug: newPost.slug,
-        title: newPost.title,
-        author: newPost.author,
-        createdAt: newPost.createdAt,
+        id: updatedPost!.id,
+        slug: updatedPost!.slug,
+        title: updatedPost!.title,
+        author: updatedPost!.author,
+        createdAt: updatedPost!.createdAt,
+        googleIndexed: updatedPost!.googleIndexed,
+        googleIndexedAt: updatedPost!.googleIndexedAt,
+        googleIndexingError: updatedPost!.googleIndexingError,
       },
+      googleIndexing: googleSubmission,
     })
   } catch (error) {
     console.error("Error creating blog post:", error)

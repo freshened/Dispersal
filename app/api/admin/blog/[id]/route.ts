@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { getCurrentUser } from "@/lib/auth"
+import { removeBlogPostFromGoogle } from "@/lib/google-indexing"
 
 export async function DELETE(
   request: NextRequest,
@@ -29,11 +30,16 @@ export async function DELETE(
       )
     }
 
+    const googleRemoval = await removeBlogPostFromGoogle(post.slug)
+    
     await db.blogPost.delete({
       where: { id },
     })
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ 
+      success: true,
+      googleIndexing: googleRemoval,
+    })
   } catch (error) {
     console.error("Error deleting blog post:", error)
     return NextResponse.json(
